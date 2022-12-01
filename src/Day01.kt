@@ -1,17 +1,21 @@
 fun main() {
-    fun part1(input: List<String>): Int {
-        return input.size
+    fun inputToCalories(input: List<String>): List<Int> {
+        return input.joinToString(",")
+            .split(",,").map {
+                it.split(",").sumOf { str -> str.toInt() }
+            }
+    }
+
+    fun part1(input: List<String>): Int? {
+        return inputToCalories(input).maxOrNull()
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        return inputToCalories(input).sortedDescending().take(3).sum()
     }
 
-    // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day01_test")
-    check(part1(testInput) == 1)
 
-    val input = readInput("Day01")
+    val input = readInput("resources/day01_part1")
     println(part1(input))
     println(part2(input))
 }
