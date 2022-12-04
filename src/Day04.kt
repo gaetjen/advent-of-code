@@ -26,8 +26,7 @@ object Day04 {
         return listOf(
             range1.first in range2,
             range1.last in range2,
-            range2.first in range1,
-            range2.last in range1
+            range2.first in range1
         ).any { it }
     }
 }
