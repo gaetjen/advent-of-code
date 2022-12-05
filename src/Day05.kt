@@ -32,7 +32,7 @@ object Day05 {
     }
 
     private fun applyMove(move: Move, stacks: MutableList<MutableList<Char>>) {
-        for (i in 1..move.amount) {
+        repeat(move.amount) {
             stacks[move.to].add(stacks[move.from].last())
             stacks[move.from].removeLast()
         }
