@@ -6,8 +6,8 @@ object Day05 {
     )
 
     private fun transpose(matrix: List<List<Char>>): List<List<Char>> {
-        return List(matrix.last().last().toString().toInt()) {stackIdx ->
-            List(matrix.size - 1) {rowIdx ->
+        return List(matrix.last().last().toString().toInt()) { stackIdx ->
+            List(matrix.size - 1) { rowIdx ->
                 matrix[rowIdx][stackIdx]
             }.reversed()
         }
@@ -41,7 +41,7 @@ object Day05 {
     private fun parseMoves(moves: List<String>): List<Move> {
         return moves.map {
             val splits = it.split(' ')
-            Move(splits[1].toInt(), splits[3].toInt()-1, splits[5].toInt()-1)
+            Move(splits[1].toInt(), splits[3].toInt() - 1, splits[5].toInt() - 1)
         }
     }
 
