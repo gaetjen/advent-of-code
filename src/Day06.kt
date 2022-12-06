@@ -3,17 +3,11 @@ object Day06 {
         return numberOfCharsBeforeNDistinct(input, 4)
     }
 
-    private fun numberOfCharsBeforeNDistinct(input: String, n: Int) = input
-        .mapIndexed { index, _ ->
-            index + n to
-                    input
-                        .drop(index)
-                        .take(n)
-                        .toSet()
-                        .count()
-        }
-        .first { (_, distinct) -> distinct == n }
-        .first
+    private fun numberOfCharsBeforeNDistinct(input: String, n: Int) : Int {
+        return input
+            .windowed(n)
+            .indexOfFirst { it.toList().distinct().size == n } + n
+    }
 
     fun part2(input: String): Int {
         return numberOfCharsBeforeNDistinct(input, 14)
