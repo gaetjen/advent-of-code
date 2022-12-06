@@ -1,5 +1,3 @@
-import kotlin.math.max
-
 object Day06 {
     fun part1(input: String): Int {
         return numberOfCharsBeforeNDistinct(input, 4)
@@ -7,9 +5,9 @@ object Day06 {
 
     private fun numberOfCharsBeforeNDistinct(input: String, n: Int) = input
         .mapIndexed { index, _ ->
-            index + 1 to
+            index + n to
                     input
-                        .drop(max(0, index - n + 1))
+                        .drop(index)
                         .take(n)
                         .toSet()
                         .count()
