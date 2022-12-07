@@ -12,9 +12,9 @@ object Day03 {
     }
 
     private fun itemToPriority(item: Char) = if (item in ('a'..'z')) {
-        item.code - 'a'.code + 1
+        (item - 'a') + 1
     } else {
-        item.code - 'A'.code + 27
+        (item - 'A') + 27
     }
 
     fun part2(input: List<String>): Int {
