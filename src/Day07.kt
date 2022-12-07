@@ -5,36 +5,21 @@ object Day07 {
         val children: MutableList<File> = mutableListOf(),
         val name: String
     ) {
-        fun totalSize() : Long {
+        fun totalSize(): Long {
             if (children.size == 0) {
                 return size ?: 0
             }
             return children.sumOf { it.totalSize() }
         }
-        fun path() : String {
-            return if (parent == null) {
-                name
-            } else {
-                parent.path() + "/" + name
-            }
-        }
     }
 
     fun part1(input: List<String>): Long {
         val allDirs = dirsFromInput(input)
-        println(allDirs.map { it.totalSize() })
-        println(allDirs.all { it.size == null })
-        println(allDirs.size)
-        println(input.filter { it.startsWith("dir ") }.size)
-        /*for (line in input) {
-            if (line.startsWith("dir")) {
-                if (line.split(" ").last() !in allDirs.keys) {
-                    println("!!! $line")
-                    break
-                }
-            }
-        }*/
-        return allDirs.map { it.totalSize() }.filter { it <= 100000}.sum()
+        println("directory sizes: " + allDirs.map { it.totalSize() })
+        println("all directories have zero size: " + allDirs.all { it.size == null })
+        println("number directories: " + allDirs.size)
+        println("number lines starting with \"dir\": " + input.filter { it.startsWith("dir ") }.size)
+        return allDirs.map { it.totalSize() }.filter { it <= 100000 }.sum()
     }
 
     private fun dirsFromInput(input: List<String>): MutableList<File> {
@@ -43,7 +28,6 @@ object Day07 {
         val allDirs = mutableListOf(root)
         var idx = 0
         while (idx < input.size) {
-            //println(input[idx])
             when (input[idx]) {
                 "$ cd .." -> {
                     currentDir = currentDir.parent!!
@@ -70,6 +54,7 @@ object Day07 {
                     allDirs.add(newDir)
                     thisDir.children.add(newDir)
                 }
+
                 else -> {
                     val newFile = File(p1.toLong(), name = p2)
                     thisDir.children.add(newFile)
@@ -83,7 +68,6 @@ object Day07 {
     fun part2(input: List<String>): Long {
         val allDirs = dirsFromInput(input)
         val totalMem = allDirs[0].totalSize()
-        println(allDirs[0].path())
         val freeSpace = 70000000 - totalMem
         println("free: $freeSpace")
         val toFree = 30000000 - freeSpace
@@ -120,20 +104,10 @@ val testInput = """
     5626152 d.ext
     7214296 k
 """.trimIndent()
-
-/*val testInput = """
-    ${'$'} cd /
-    ${'$'} ls
-    dir a
-    14848514 b.txt
-    8504156 c.dat
-""".trimIndent()
- */
 fun main() {
     println(Day07.part1(testInput.split("\n").drop(1)))
     // wrong: 1081027
     val input = readInput("resources/day07")
     println(Day07.part1(input.drop(1)))
     println(Day07.part2(input.drop(1)))
-    //println(Day07.part2(input))
 }
