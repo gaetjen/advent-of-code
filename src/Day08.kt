@@ -16,7 +16,9 @@ object Day08 {
     }
 
     private fun isVisible(idx: Int, line: List<Tree>): Boolean {
-        return line.take(idx).all { it.height < line[idx].height } || line.drop(idx + 1).all { it.height < line[idx].height }
+        return line.split { it == line[idx] }
+            .map { partLine -> partLine.all { it.height < line[idx].height } }
+            .any { it }
     }
 
     class Tree(height: Char, val row: Int, val col: Int) {
@@ -39,9 +41,8 @@ object Day08 {
 
     private fun scenicScore(idx: Int, line: List<Tree>): Int {
         val treeHeight = line[idx].height
-        val before = line.take(idx).reversed()
-        val after = line.drop(idx + 1)
-        return viewDistance(before, treeHeight) * viewDistance(after, treeHeight)
+        val (before, after) = line.split { it == line[idx] }
+        return viewDistance(before.reversed(), treeHeight) * viewDistance(after, treeHeight)
     }
 
     private fun viewDistance(trees: List<Tree>, treeHeight: Int): Int {
@@ -49,7 +50,6 @@ object Day08 {
         val extraTree = if (trees.drop(visible).firstOrNull()?.height == treeHeight) 1 else 0
         return visible + extraTree
     }
-
 }
 
 
@@ -61,7 +61,6 @@ fun main() {
     33549
     35390
 """.trimIndent().split("\n")
-    //listOf<Boolean>().all { true }
     println("all of empty: " + listOf<Boolean>().all { true })
     println(Day08.part1(testInput))
     val input = readInput("resources/day08")
