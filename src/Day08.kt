@@ -2,16 +2,16 @@ object Day08 {
 
     fun part1(input: List<String>): Int {
         val heightGrid = input.mapIndexed { rowIdx, row ->
-            row.mapIndexed { colIdx, h, -> Tree(h, rowIdx, colIdx)  }
+            row.mapIndexed { colIdx, h -> Tree(h, rowIdx, colIdx) }
         }
         return heightGrid
             .flatten()
             .count {
                 isVisible(it, heightGrid)
-        }
+            }
     }
 
-    private fun isVisible(tree: Tree, grid: List<List<Tree>>) : Boolean {
+    private fun isVisible(tree: Tree, grid: List<List<Tree>>): Boolean {
         return isVisible(tree.row, getCol(grid, tree.col)) || isVisible(tree.col, getRow(grid, tree.row))
     }
 
@@ -25,38 +25,31 @@ object Day08 {
 
 
     fun part2(input: List<String>): Int {
-        val heightGrid = input.map { row ->
-            row.map { it.toString().toInt() }
+        val heightGrid = input.mapIndexed { rowIdx, row ->
+            row.mapIndexed { colIdx, h -> Tree(h, rowIdx, colIdx) }
         }
-        val transposed = transpose(heightGrid)
-        val scores = heightGrid.mapIndexed { rowIdx, row ->
-            row.mapIndexed { colIdx, height ->
-                val col = transposed[colIdx]
-                var left = 0
-                for (h in row.take(colIdx).reversed()) {
-                    left++
-                    if (h >= height) break
-                }
-                var right = 0
-                for (h in row.drop(colIdx + 1)) {
-                    right++
-                    if (h >= height) break
-                }
-                var top = 0
-                for (h in col.take(rowIdx).reversed()) {
-                    top++
-                    if (h >= height) break
-                }
-                var bottom = 0
-                for (h in col.drop(rowIdx + 1)) {
-                    bottom++
-                    if (h >= height) break
-                }
-                left * right * bottom * top
-            }
-        }.flatten()
-        return scores.max()
+        return heightGrid
+            .flatten()
+            .maxOf { scenicScore(it, heightGrid) }
     }
+
+    private fun scenicScore(tree: Tree, grid: List<List<Tree>>): Int {
+        return scenicScore(tree.row, getCol(grid, tree.col)) * scenicScore(tree.col, getRow(grid, tree.row))
+    }
+
+    private fun scenicScore(idx: Int, line: List<Tree>): Int {
+        val treeHeight = line[idx].height
+        val before = line.take(idx).reversed()
+        val after = line.drop(idx + 1)
+        return viewDistance(before, treeHeight) * viewDistance(after, treeHeight)
+    }
+
+    private fun viewDistance(trees: List<Tree>, treeHeight: Int): Int {
+        val visible = trees.takeWhile { it.height < treeHeight }.count()
+        val extraTree = if (trees.drop(visible).firstOrNull()?.height == treeHeight) 1 else 0
+        return visible + extraTree
+    }
+
 }
 
 
