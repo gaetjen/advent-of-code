@@ -1,29 +1,28 @@
 object Day08 {
-    private fun transpose(matrix: List<List<Int>>): List<List<Int>> {
-        return List(matrix.first().size) { stackIdx ->
-            List(matrix.size) { rowIdx ->
-                matrix[rowIdx][stackIdx]
-            }
+
+    fun part1(input: List<String>): Int {
+        val heightGrid = input.mapIndexed { rowIdx, row ->
+            row.mapIndexed { colIdx, h, -> Tree(h, rowIdx, colIdx)  }
+        }
+        return heightGrid
+            .flatten()
+            .count {
+                isVisible(it, heightGrid)
         }
     }
 
-    fun part1(input: List<String>): Int {
-        val heightGrid = input.map { row ->
-            row.map { it.toString().toInt() }
-        }
-        val transposed = transpose(heightGrid)
-        val visible = heightGrid.mapIndexed { rowIdx, row ->
-            row.mapIndexed { colIdx, height ->
-                val fromSide = row.take(colIdx).all { it < height } ||
-                        row.drop(colIdx + 1).all { it < height }
-                val col = transposed[colIdx]
-                val fromNS = col.take(rowIdx).all { it < height } ||
-                        col.drop(rowIdx + 1).all { it < height }
-                fromSide || fromNS
-            }
-        }.flatten()
-        return visible.count { it }
+    private fun isVisible(tree: Tree, grid: List<List<Tree>>) : Boolean {
+        return isVisible(tree.row, getCol(grid, tree.col)) || isVisible(tree.col, getRow(grid, tree.row))
     }
+
+    private fun isVisible(idx: Int, line: List<Tree>): Boolean {
+        return line.take(idx).all { it.height < line[idx].height } || line.drop(idx + 1).all { it.height < line[idx].height }
+    }
+
+    class Tree(height: Char, val row: Int, val col: Int) {
+        val height = height.digitToInt()
+    }
+
 
     fun part2(input: List<String>): Int {
         val heightGrid = input.map { row ->
