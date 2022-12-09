@@ -27,12 +27,14 @@ fun <T> transpose(matrix: List<List<T>>): List<List<T>> {
 fun <T> getRow(grid: List<List<T>>, rowIdx: Int) = grid[rowIdx]
 fun <T> getCol(grid: List<List<T>>, colIdx: Int) = grid.map { it[colIdx] }
 
-fun <T> List<T>.split(predicate: (T) -> Boolean): List<List<T>> {
+fun <T> List<T>.split(matchInPost: Boolean = true, matchInPre: Boolean = false, predicate: (T) -> Boolean): List<List<T>> {
     val idx = this.indexOfFirst(predicate)
     return if (idx == -1) {
         listOf(this)
     } else {
-        return listOf(this.take(idx)) + this.drop(idx + 1).split(predicate)
+        val preSplit = this.slice(0 until idx + if (matchInPre) 1 else 0)
+        val postSplit = this.slice((idx + if (matchInPost) 1 else 0) until this.size)
+        return listOf(preSplit) + postSplit.split(matchInPost, matchInPre, predicate)
     }
 }
 
