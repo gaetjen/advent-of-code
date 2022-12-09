@@ -48,7 +48,6 @@ object Day09 {
                 headPos = move.direction.move(headPos)
                 // follow tail
                 tailPos = follow(headPos, tailPos)
-                //println(tailPos)
                 // add new pos to visited
                 visited.add(tailPos)
             }
@@ -72,19 +71,12 @@ object Day09 {
             return tailPos
         }
         // diagonal
-        /*if (listOf(abs(distX), abs(distY)).toSet() != setOf(1, 2)) {
-            println("$distX $distY")
-        }*/
         return tailX + (distX / abs(distX)) to tailY + (distY / abs(distY))
-        /*return when {
-            abs(distX) == 1 -> tailX + distX to tailY + distY / 2
-            else -> tailX + distX / 2 to tailY + distY
-        }*/
     }
 
     fun part2(input: List<String>): Int {
         val moves = input.map { parse(it) }
-        val rope = MutableList(10) {0 to 0}
+        val rope = MutableList(10) { 0 to 0 }
         val visited = mutableSetOf(rope.last())
         moves.forEach { move ->
             repeat(move.steps) {
