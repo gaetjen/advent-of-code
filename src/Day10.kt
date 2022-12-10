@@ -1,7 +1,8 @@
 object Day10 {
     sealed class Command {
         abstract fun process(register: Int): List<Int>
-        class NoOp() : Command() {
+
+        object NoOp : Command() {
             override fun process(register: Int): List<Int> {
                 return listOf(register)
             }
@@ -16,46 +17,40 @@ object Day10 {
 
     private fun parse(input: String): Command {
         return when (input) {
-            "noop" -> Command.NoOp()
+            "noop" -> Command.NoOp
             else -> Command.Add(input.split(" ").last().toInt())
         }
     }
 
     fun part1(input: List<String>): Int {
-        val commands = input.map { parse(it) }
-        val states = mutableListOf(1)
-        commands.forEach {
-            states.addAll(it.process(states.last()))
-        }
-        val sigIdxs = listOf(20, 60, 100, 140, 180, 220)
+        val states = inputToStates(input)
+        val sigIdxs = 20..220 step 40
         return sigIdxs.sumOf {
             states[it - 1] * it
         }
     }
 
     fun part2(input: List<String>) {
+        val states = inputToStates(input)
+        val spritePos = states.map { it - 1..it + 1 }
+        val cursorPos = List(6) { List(40) { it } }
+        val screen = cursorPos.flatten().mapIndexed { cycle, pos ->
+            if (pos in spritePos[cycle]) {
+                "██"
+            } else {
+                "  "
+            }
+        }.chunked(40).joinToString("\n") { it.joinToString("") }
+        println(screen)
+    }
+
+    private fun inputToStates(input: List<String>): MutableList<Int> {
         val commands = input.map { parse(it) }
         val states = mutableListOf(1)
         commands.forEach {
             states.addAll(it.process(states.last()))
         }
-        val spritePos = states.map {
-            it - 1..it + 1
-        }
-        val cursorPos = List(6) { List(40) { it } }
-        cursorPos.forEachIndexed { rowIdx, row ->
-            row.forEachIndexed { xIdx, pos ->
-                val cycle = rowIdx * 40 + xIdx
-                if (pos in spritePos[cycle]) {
-                    print("#")
-                } else {
-                    print(".")
-                }
-            }
-            println("")
-        }
-
-
+        return states
     }
 }
 
