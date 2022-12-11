@@ -7,6 +7,15 @@ object Day11 {
         val targetFalse: Int,
         var numInspections: Long = 0
     ) {
+        companion object {
+            operator fun invoke(input: List<String>): Monkey {
+                val items = input[1].substringAfterLast(": ").split(", ").map { it.toLong() }.toMutableList()
+                val op = toOperation(input[2])
+                val (divisible, targetTrue, targetFalse) = input.drop(3).map { it.substringAfterLast(" ").toInt() }
+                return Monkey(items, op, divisible, targetTrue, targetFalse)
+            }
+        }
+
         fun throwAll(monkeys: List<Monkey>) {
             numInspections += items.size
             items.forEach {
@@ -19,6 +28,7 @@ object Day11 {
             }
             items = mutableListOf()
         }
+
         fun throwAllBigWorry(monkeys: List<Monkey>) {
             val div = monkeys.map { it.divisible }.reduce { acc, d -> acc * d }
             numInspections += items.size
@@ -34,17 +44,10 @@ object Day11 {
         }
     }
 
-    private fun toMonkey(input: List<String>): Monkey {
-        val items = input[1].substringAfterLast(": ").split(", ").map { it.toLong() }.toMutableList()
-        val op = toOperation(input[2])
-        val (divisible, targetTrue, targetFalse) = input.drop(3).map { it.substringAfterLast(" ").toInt() }
-        return Monkey(items, op, divisible, targetTrue, targetFalse)
-    }
-
     private fun toOperation(input: String): (Long) -> Long {
         val (operator, operandStr) = input.substringAfterLast("old ").split(" ")
         if (operandStr == "old") {
-            return { it -> (it * it) }
+            return { it -> it * it }
         }
         val operand = operandStr.toInt()
         return when (operator) {
@@ -56,7 +59,7 @@ object Day11 {
 
     private fun parse(input: List<String>): List<Monkey> {
         return input.split { it.isEmpty() }
-            .map { toMonkey(it) }
+            .map { Monkey(it) }
     }
 
     fun part1(input: List<String>): Long {
