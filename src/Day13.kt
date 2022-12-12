@@ -1,7 +1,6 @@
 import java.io.File
 
-val path = ""
-object Day13{
+object Day13 {
     private fun parse(input: List<String>): Any {
         TODO()
     }
@@ -18,8 +17,12 @@ object Day13{
 }
 
 fun main() {
-    val f = File("bla.txt")
-    println(f.absolutePath)
+    val day = "13"
+    val f = File("src/Day$day.kt")
+    val content = f.readText()
+    val nextDay = String.format("%02d", day.toInt() + 1)
+    File("src/Day$nextDay.kt").writeText(content.replace(day, nextDay))
+    f.writeText(content.split("\n").filterIndexed { idx, _ -> idx > 1 && idx !in 19..26 }.joinToString("\n"))
     val testInput = """
         
     """.trimIndent().split("\n")
