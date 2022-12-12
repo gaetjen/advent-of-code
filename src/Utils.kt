@@ -51,3 +51,29 @@ fun <T> List<T>.split(predicate: (T) -> Boolean): List<List<T>> {
 }
 
 private operator fun <T> ((T) -> Boolean).not(): (T) -> Boolean = { input -> !this(input) }
+
+enum class Direction {
+    UP, DOWN, LEFT, RIGHT;
+
+    companion object {
+        fun fromChar(c: Char): Direction {
+            return when (c) {
+                'R' -> RIGHT
+                'U' -> UP
+                'D' -> DOWN
+                'L' -> LEFT
+                else -> error("$c is not a direction")
+            }
+        }
+    }
+
+    fun move(pos: Pair<Int, Int>): Pair<Int, Int> {
+        val (fromX, fromY) = pos
+        return when (this) {
+            UP -> fromX to fromY + 1
+            DOWN -> fromX to fromY - 1
+            LEFT -> fromX - 1 to fromY
+            RIGHT -> fromX + 1 to fromY
+        }
+    }
+}

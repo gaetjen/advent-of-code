@@ -46,13 +46,10 @@ object Day11 {
 
     private fun toOperation(input: String): (Long) -> Long {
         val (operator, operandStr) = input.substringAfterLast("old ").split(" ")
-        if (operandStr == "old") {
-            return { it -> it * it }
-        }
-        val operand = operandStr.toInt()
+        val operand = operandStr.toLongOrNull()
         return when (operator) {
-            "+" -> { it -> (it + operand) }
-            "*" -> { it -> (it * operand) }
+            "+" -> { it -> (it + (operand ?: it)) }
+            "*" -> { it -> (it * (operand ?: it)) }
             else -> error("unknown operator")
         }
     }
