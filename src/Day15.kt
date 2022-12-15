@@ -2,12 +2,6 @@ import kotlin.math.abs
 
 object Day15 {
     data class SensorBeacon(val sensor: Pos, val beacon: Pos) {
-        companion object {
-            /*fun of(s: List<Int>, b: List<Int>): SensorBeacon {
-
-            }*/
-        }
-
         constructor(s: List<Int>, b: List<Int>) : this(s.toPair(), b.toPair())
 
         fun manhattanDist(): Int {
@@ -34,7 +28,6 @@ object Day15 {
 
     fun part1(input: List<String>, line: Int): Int {
         val sensorBeacons = parse(input)
-        //println(sensorBeacons)
         val coveredPositions = coveredPositionsInLine(sensorBeacons, line)
         val minX = coveredPositions.minOf { it.first }
         val maxX = coveredPositions.maxOf { it.last }
@@ -52,24 +45,25 @@ object Day15 {
         val coveredPositions = (0..max).map { line ->
             coveredPositionsInLine(sensorBeacons, line)
         }
-        var y = mutableListOf<Int>()
-        var yLine = mutableListOf<List<IntRange>>()
+        var y = -1
+        var yLine = listOf<IntRange>()
         coveredPositions.forEachIndexed { idx, line ->
             var mergedRanges = line
             for (i in 0..line.size) {
-                val overlaps = mergedRanges.filter { partlyContains(mergedRanges[0], it) }.toSet()
+                val overlaps = mergedRanges.filter { overlapsOrTouches(mergedRanges[0], it) }.toSet()
                 val newMerged = overlaps.minOf { it.first }..overlaps.maxOf { it.last }
-                mergedRanges = mergedRanges.filter { it !in overlaps } +  listOf(newMerged)
+                mergedRanges = mergedRanges.filter { it !in overlaps } + listOf(newMerged)
             }
             if (mergedRanges.size == 2) {
-                y.add(idx)
-                yLine.add(mergedRanges)
-                //return@forEachIndexed
+                y = idx
+                yLine = mergedRanges
+                return@forEachIndexed
             }
         }
         println(y)
-        println(yLine.joinToString("\n"))
-        return y.first().toLong()
+        println(yLine)
+        val x = yLine.minBy { it.first }.last + 1
+        return x * 4_000_000L + y
     }
 
     private fun coveredPositionsInLine(
@@ -84,17 +78,12 @@ object Day15 {
         }
     }.filter { !it.isEmpty() }
 
-    private fun fullyContains(range1: IntRange, range2: IntRange): Boolean {
-        if (range1 == range2) {
-            return false
-        }
-        return (range1.first in range2 && range1.last in range2) || (range2.first in range1 && range2.last in range1)
-    }
 
-    private fun partlyContains(range1: IntRange, range2: IntRange): Boolean {
+    private fun overlapsOrTouches(range1: IntRange, range2: IntRange): Boolean {
+        val extended = (range2.first - 1)..(range2.last + 1)
         return listOf(
-            range1.first in range2,
-            range1.last in range2,
+            range1.first in extended,
+            range1.last in extended,
             range2.first in range1
         ).any { it }
     }
