@@ -68,6 +68,7 @@ object Day16 {
             }.sortedByDescending { it.releasedSoFar }
             val bestNext = nextSteps.maxOfOrNull { it.releasedHere }
             if (bestNext == null || bestNext <= 0) {
+                println("released ${state.releasedSoFar} with remaining ${state.unOpened.map { it.id }}")
                 return state.releasedSoFar
             }
             var currentBest = bestSoFar
@@ -172,6 +173,16 @@ object Day16 {
         val beginning = SearchStateDouble("AA", "AA", time, time, 0, valves.values.filter { it.rate != 0 }.toSet(), 0)
         return s.maxReleaseFrom(beginning, 0)
     }
+
+    fun part2Cheat(input: List<String>): Int {
+        val valves = parse(input)
+        val s = PressureSearch(valves)
+        val beginning = SearchState("AA", 26, 0, valves.values.filter { it.rate != 0 }.toSet(), 0)
+        val singlePressure = s.maxReleaseFrom(beginning, 0)
+        val unopened = listOf("DM", "XS", "KI", "DU", "ZK", "LC", "IY", "VF", "BD")
+        val secondBeginning = SearchState("AA", 26, 0, valves.filterKeys { it in unopened }.values.toSet(), 0)
+        return singlePressure + s.maxReleaseFrom(secondBeginning, 0)
+    }
 }
 
 fun main() {
@@ -194,8 +205,6 @@ fun main() {
     println("------Real------")
     val input = readInput("resources/day16")
     println("part 1: " + Day16.part1(input))
-    println("part 1: " + Day16.part2(input))
-    /*(1..26).forEach {
-        println("part 2, $it minutes: " + Day16.part2(input, it))
-    }*/
+    println("part 2 cheat: " + Day16.part2Cheat(input))
+    //println("part 2: " + Day16.part2(input))
 }
