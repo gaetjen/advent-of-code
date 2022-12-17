@@ -2,6 +2,9 @@ import java.io.File
 import java.math.BigInteger
 import java.security.MessageDigest
 
+typealias PosL = Pair<Long, Long>
+
+
 /**
  * Reads lines from the given input txt file.
  */
@@ -68,6 +71,16 @@ enum class Direction {
     }
 
     fun move(pos: Pair<Int, Int>): Pair<Int, Int> {
+        val (fromX, fromY) = pos
+        return when (this) {
+            UP -> fromX to fromY + 1
+            DOWN -> fromX to fromY - 1
+            LEFT -> fromX - 1 to fromY
+            RIGHT -> fromX + 1 to fromY
+        }
+    }
+
+    fun moveL(pos: Pair<Long, Long>): Pair<Long, Long> {
         val (fromX, fromY) = pos
         return when (this) {
             UP -> fromX to fromY + 1
