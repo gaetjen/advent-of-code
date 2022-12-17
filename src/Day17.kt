@@ -3,7 +3,7 @@ import java.lang.Long.max
 object Day17 {
     const val CHAMBER_WIDTH = 7
 
-    enum class Shape(private val grid: List<String>) {
+    enum class Shape(grid: List<String>) {
         FLOOR(listOf("████")),
         PLUS(listOf(" █ ", "███", " █ ")),
         CORNER(listOf("███", "  █", "  █")), // ! reverse order 0, 0 is bottom left
@@ -56,6 +56,7 @@ object Day17 {
                 if (rock.moved(Direction.DOWN).overlaps(blocks)) {
                     blocks.addAll(rock.blockPositions())
                     maxHeight = max(maxHeight, rock.pos.second + rock.shape.height)
+                    blocks.removeIf { it.second < maxHeight - 100 }
                     return
                 } else {
                     rock.move(Direction.DOWN)
@@ -85,11 +86,54 @@ object Day17 {
         val jets = parse(input)
         val chamber = Chamber(mutableSetOf(), jets)
         var numRocks = 0L
-        while (numRocks < 1_000_000_000_000) {
+        val maxRocks = 1_000_000_000_000L
+        val steps = mutableListOf(0)
+        val heights = mutableListOf(0L)
+        var heightSkip = 0L
+        var numRepeats = 0L
+        while (numRocks < maxRocks) {
             chamber.addRock(numRocks)
             numRocks++
+            steps.add(chamber.numSteps)
+            heights.add(chamber.maxHeight)
+            if (heightSkip == 0L) {
+                val repeatingLength = getDuplicateLength(steps.reversed())
+                if (repeatingLength != -1) {
+                    println("found repeat of length after $numRocks: $repeatingLength")
+                    heightSkip = checkHeights(heights.reversed(), repeatingLength)
+                    numRepeats = (maxRocks - numRocks) / repeatingLength
+                    numRocks += numRepeats * repeatingLength
+                    println("same pattern will repeat $numRepeats times, for a total of $numRocks rocks and a height of ${chamber.maxHeight + numRepeats * heightSkip}")
+                }
+            }
         }
-        return chamber.maxHeight
+        return chamber.maxHeight + (numRepeats * heightSkip)
+    }
+
+    private fun checkHeights(heights: List<Long>, length: Int) : Long{
+        val first = heights.subList(0, length).map { it - heights[0] }
+        val second = heights.subList(length, length * 2).map { it - heights[length] }
+        if (first == second) {
+            println("height differences are matching! height difference: ${-first.last()}")
+            return -first.last()
+        } else {
+            error("diffs don't match")
+        }
+    }
+
+    private fun getDuplicateLength(steps: List<Int>): Int {
+        val start = steps.first()
+        val secondIdx = steps
+            .mapIndexed { idx, i -> idx to i }
+            .slice(steps.indices step 5)
+            .firstOrNull { it.second == start && it.first != 0 }?.first
+        return if (secondIdx != null
+            && secondIdx * 2 < steps.size
+            && steps.subList(0, secondIdx) == steps.subList(secondIdx, secondIdx * 2)) {
+            secondIdx
+        } else {
+            -1
+        }
     }
 }
 
@@ -97,17 +141,20 @@ private operator fun PosL.plus(pos: PosL) = this.first + pos.first to this.secon
 
 
 fun main() {
+
     val testInput = """
         >>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>
     """.trimIndent()
     println(Day17.Shape.values().joinToString("\n"))
     println(Day17.Shape.values().joinToString("\n") {it.blockPositions.toString()})
+    println(testInput.length)
     println("------Tests------")
     println(Day17.part1(testInput))
-    //println(Day17.part2(testInput))
+    println(Day17.part2(testInput))
 
     println("------Real------")
     val input = readInput("resources/day17").first()
     println(Day17.part1(input))
-    //println(Day17.part2(input))
+    // wrong: 1536416184990
+    println(Day17.part2(input))
 }
