@@ -40,12 +40,8 @@ object Day16 {
         }
     }
 
-    class PressureSearch(val valves: Map<String, Valve>) {
-        val distances: Map<Pair<String, String>, Int> = getAllDistances(valves)
-        /*init {
-
-            println(distances)
-        }*/
+    class PressureSearch(valves: Map<String, Valve>) {
+        private val distances: Map<Pair<String, String>, Int> = getAllDistances(valves)
 
         private fun getAllDistances(valves: Map<String, Valve>): Map<Pair<String, String>, Int> {
             val rtn = mutableMapOf<Pair<String, String>, Int>()
@@ -61,10 +57,10 @@ object Day16 {
             bestSoFar: Int,
         ): Int {
             val optimistic = state.unOpened.map { it.rate }.sortedDescending()
-                .mapIndexed { index, rate -> max(0,(state.remainingMinutes - (index + 1) * 2)) * rate }
-                .fold(0) { a, b -> a + b } + state.releasedSoFar
+                .mapIndexed { index, rate -> max(0, (state.remainingMinutes - (index + 1) * 2)) * rate }
+                .sum() + state.releasedSoFar
             if (optimistic <= bestSoFar) {
-                return state.releasedSoFar
+                return 0
             }
             val nextSteps = state.unOpened.map {
                 val remaining = state.remainingMinutes - distances[state.position to it.id]!! - 1
@@ -80,11 +76,75 @@ object Day16 {
             }
             return currentBest
         }
+
+        fun maxReleaseFrom(state: SearchStateDouble, bestSoFar: Int): Int {
+            val bestUsedMinutesPossible = (state.remainingFast downTo 1 step 2).toList() + (state.remainingFast downTo 1 step 2).toList()
+            val optimistic = state.unOpened.map { it.rate }.sortedDescending().zip(bestUsedMinutesPossible.sortedDescending())
+                .sumOf { (rate, minutes) -> rate * minutes } + state.releasedSoFar
+            if (optimistic <= bestSoFar) {
+                return 0
+            }
+            val nextSteps = generateNextSteps(state)
+
+            val bestNext = nextSteps.maxOfOrNull { it.releasedHere }
+            if (bestNext == null || bestNext <= 0) {
+                return state.releasedSoFar
+            }
+            var currentBest = bestSoFar
+            for (n in nextSteps) {
+                currentBest = max(currentBest, maxReleaseFrom(n, currentBest))
+            }
+            return currentBest
+        }
+
+        private fun generateNextSteps(state: SearchStateDouble): List<SearchStateDouble> {
+            return state.unOpened.flatMap { v1 -> state.unOpened.map { v1 to it } }
+                .filter { it.first != it.second }
+                .map { (v1, v2) ->
+                    val remaining1 = state.remainingFast - distances[state.positionFast to v1.id]!! - 1
+                    val remaining2 = state.remainingSlow - distances[state.positionSlow to v2.id]!! - 1
+                    if (remaining1 > state.remainingSlow) {
+                        SearchStateDouble(
+                            v1.id, state.positionSlow,
+                            remaining1, state.remainingSlow,
+                            remaining1 * v1.rate,
+                            state.unOpened - setOf(v1),
+                            state.releasedSoFar + remaining1 * v1.rate
+                        )
+                    } else if (remaining1 >= remaining2) {
+                        SearchStateDouble(
+                            v1.id, v2.id,
+                            remaining1, remaining2,
+                            remaining1 * v1.rate + remaining2 * v2.rate,
+                            state.unOpened - setOf(v1, v2),
+                            state.releasedSoFar + remaining1 * v1.rate + remaining2 * v2.rate
+                        )
+                    } else {
+                        SearchStateDouble(
+                            v2.id, v1.id,
+                            remaining2, remaining1,
+                            remaining1 * v1.rate + remaining2 * v2.rate,
+                            state.unOpened - setOf(v1, v2),
+                            state.releasedSoFar + remaining1 * v1.rate + remaining2 * v2.rate
+                        )
+                    }
+                }
+        }
     }
 
     data class SearchState(
         val position: String,
         val remainingMinutes: Int,
+        val releasedHere: Int,
+        val unOpened: Set<Valve>,
+        val releasedSoFar: Int,
+    )
+
+    data class SearchStateDouble(
+        val positionFast: String,
+        val positionSlow: String,
+        val remainingFast: Int,
+        val remainingSlow: Int,
         val releasedHere: Int,
         val unOpened: Set<Valve>,
         val releasedSoFar: Int,
@@ -106,9 +166,11 @@ object Day16 {
         return s.maxReleaseFrom(SearchState("AA", 30, 0, valves.values.filter { it.rate != 0 }.toSet(), 0), 0)
     }
 
-    fun part2(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+    fun part2(input: List<String>, time: Int = 26): Int {
+        val valves = parse(input)
+        val s = PressureSearch(valves)
+        val beginning = SearchStateDouble("AA", "AA", time, time, 0, valves.values.filter { it.rate != 0 }.toSet(), 0)
+        return s.maxReleaseFrom(beginning, 0)
     }
 }
 
@@ -132,5 +194,8 @@ fun main() {
     println("------Real------")
     val input = readInput("resources/day16")
     println("part 1: " + Day16.part1(input))
-    println("part 2: " + Day16.part2(input))
+    println("part 1: " + Day16.part2(input))
+    /*(1..26).forEach {
+        println("part 2, $it minutes: " + Day16.part2(input, it))
+    }*/
 }
