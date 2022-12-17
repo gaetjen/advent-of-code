@@ -56,7 +56,6 @@ object Day17 {
                 if (rock.moved(Direction.DOWN).overlaps(blocks)) {
                     blocks.addAll(rock.blockPositions())
                     maxHeight = max(maxHeight, rock.pos.second + rock.shape.height)
-                    blocks.removeIf { it.second < maxHeight - 100 }
                     return
                 } else {
                     rock.move(Direction.DOWN)
@@ -71,22 +70,10 @@ object Day17 {
         return input.map { if (it == '>') Direction.RIGHT else Direction.LEFT }
     }
 
-    fun part1(input: String): Long {
+    fun part2(input: String, maxRocks: Long): Long {
         val jets = parse(input)
         val chamber = Chamber(mutableSetOf(), jets)
         var numRocks = 0L
-        while (numRocks < 2022) {
-            chamber.addRock(numRocks)
-            numRocks++
-        }
-        return chamber.maxHeight
-    }
-
-    fun part2(input: String): Long {
-        val jets = parse(input)
-        val chamber = Chamber(mutableSetOf(), jets)
-        var numRocks = 0L
-        val maxRocks = 1_000_000_000_000L
         val steps = mutableListOf(0)
         val heights = mutableListOf(0L)
         var heightSkip = 0L
@@ -115,7 +102,7 @@ object Day17 {
         val second = heights.subList(length, length * 2).map { it - heights[length] }
         if (first == second) {
             println("height differences are matching! height difference: ${-first.last()}")
-            return -first.last()
+            return heights.first() - heights[length]
         } else {
             error("diffs don't match")
         }
@@ -149,12 +136,11 @@ fun main() {
     println(Day17.Shape.values().joinToString("\n") {it.blockPositions.toString()})
     println(testInput.length)
     println("------Tests------")
-    println(Day17.part1(testInput))
-    println(Day17.part2(testInput))
-
+    println(Day17.part2(testInput, 2022))
+    println(Day17.part2(testInput, 1_000_000_000_000))
     println("------Real------")
     val input = readInput("resources/day17").first()
-    println(Day17.part1(input))
-    // wrong: 1536416184990
-    println(Day17.part2(input))
+    println(Day17.part2(input, 2022))
+    // wrong: 1536416184990 (too low)
+    println(Day17.part2(input, 1_000_000_000_000))
 }
