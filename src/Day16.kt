@@ -158,13 +158,13 @@ object Day16 {
         return map
     }
 
-    fun part1(input: List<String>): Int {
+    fun part1(input: List<String>, time: Int = 30): Int {
         val valves = parse(input)
         println(valves)
         println("nonzero " + valves.filterValues { it.rate > 0 })
         println("nonzero count " + valves.count { it.value.rate > 0 })
         val s = PressureSearch(valves)
-        return s.maxReleaseFrom(SearchState("AA", 30, 0, valves.values.filter { it.rate != 0 }.toSet(), 0), 0)
+        return s.maxReleaseFrom(SearchState("AA", time, 0, valves.values.filter { it.rate != 0 }.toSet(), 0), 0)
     }
 
     fun part2(input: List<String>, time: Int = 26): Int {
@@ -174,13 +174,12 @@ object Day16 {
         return s.maxReleaseFrom(beginning, 0)
     }
 
-    fun part2Cheat(input: List<String>): Int {
+    fun part2Cheat(input: List<String>, unopened: List<String>, time: Int = 26): Int {
         val valves = parse(input)
         val s = PressureSearch(valves)
-        val beginning = SearchState("AA", 26, 0, valves.values.filter { it.rate != 0 }.toSet(), 0)
+        val beginning = SearchState("AA", time, 0, valves.values.filter { it.rate != 0 }.toSet(), 0)
         val singlePressure = s.maxReleaseFrom(beginning, 0)
-        val unopened = listOf("DM", "XS", "KI", "DU", "ZK", "LC", "IY", "VF", "BD")
-        val secondBeginning = SearchState("AA", 26, 0, valves.filterKeys { it in unopened }.values.toSet(), 0)
+        val secondBeginning = SearchState("AA", time, 0, valves.filterKeys { it in unopened }.values.toSet(), 0)
         return singlePressure + s.maxReleaseFrom(secondBeginning, 0)
     }
 }
@@ -198,13 +197,23 @@ fun main() {
         Valve II has flow rate=0; tunnels lead to valves AA, JJ
         Valve JJ has flow rate=21; tunnel leads to valves II
     """.trimIndent().split("\n")
+    val cheatBreak = """
+        Valve AA has flow rate=0; tunnels lead to valves BB, EE
+        Valve BB has flow rate=100; tunnels lead to valves AA, CC
+        Valve CC has flow rate=100; tunnels lead to valves BB, DD
+        Valve DD has flow rate=1; tunnels lead to valves CC, EE
+        Valve EE has flow rate=1; tunnels lead to valves DD, AA
+    """.trimIndent().split("\n")
     println("------Tests------")
     println("part 1: " + Day16.part1(testInput))
     println("part 2: " + Day16.part2(testInput))
 
+    println("part 2 for cheatBreaker normal solution: " + Day16.part2(cheatBreak, 6))
+    println("part 2 for cheatBreaker cheated solution: " + Day16.part2Cheat(cheatBreak, listOf("DD", "EE"), 6))
+
     println("------Real------")
     val input = readInput("resources/day16")
     println("part 1: " + Day16.part1(input))
-    println("part 2 cheat: " + Day16.part2Cheat(input))
-    //println("part 2: " + Day16.part2(input))
+    println("part 2 cheat: " + Day16.part2Cheat(input, listOf("DM", "XS", "KI", "DU", "ZK", "LC", "IY", "VF", "BD")))
+    println("part 2: " + Day16.part2(input))
 }
