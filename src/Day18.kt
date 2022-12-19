@@ -33,16 +33,16 @@ object Day18 {
         val maxX = neighboring.maxOf { it.first }
         val maxY = neighboring.maxOf { it.second }
         val maxZ = neighboring.maxOf { it.third }
-        val air = (minX-1..maxX+1).flatMap { x ->
-            (minY-1..maxY+1).flatMap { y ->
-                (minZ-1..maxZ+1).map { Vector(x, y, it) }
+        val air = (minX - 1..maxX + 1).flatMap { x ->
+            (minY - 1..maxY + 1).flatMap { y ->
+                (minZ - 1..maxZ + 1).map { Vector(x, y, it) }
             }
         }.toSet() - lava
         val outside = connected(Triple(minX - 1, minY - 1, minZ - 1), air)
         return neighboring.filter { it in outside }.size.toLong()
     }
 
-    private fun connected(seed : Vector, others: Set<Vector>): Set<Vector> {
+    private fun connected(seed: Vector, others: Set<Vector>): Set<Vector> {
         val frontier = mutableSetOf(seed)
         val result = mutableSetOf<Vector>()
         while (frontier.isNotEmpty()) {
