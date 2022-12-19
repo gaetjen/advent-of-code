@@ -77,6 +77,8 @@ object Day19 {
             return collected.amounts + robotNumbers.amounts + listOf(remainingMinutes)
         }
 
+        val maxBots = transpose(blueprint.costList().map { it.amounts }).map { it.max() }
+
         fun maxGeodes(): Int {
             if (remainingMinutes == 0) {
                 return collected.geode
@@ -91,14 +93,16 @@ object Day19 {
 
 
             val minutes = minutesToMake()
+            val skipState = this.copy(
+                remainingMinutes = 0,
+                collected = collected + robotNumbers * remainingMinutes
+            )
+
             val newStates = minutes.mapIndexed { idx, min ->
                 if (min == null) {
                     null
-                } else if (min >= remainingMinutes) {
-                    this.copy(
-                        remainingMinutes = 0,
-                        collected = collected + robotNumbers * remainingMinutes
-                    )
+                } else if (min >= remainingMinutes || (idx < 3 && maxBots[idx] < robotNumbers.amounts[idx])) {
+                    skipState
                 } else {
                     this.copy(
                         remainingMinutes = remainingMinutes - min,
@@ -106,7 +110,7 @@ object Day19 {
                         robotNumbers = robotNumbers + singleRobots[idx]
                     )
                 }
-            }.filterNotNull().reversed()
+            }.filterNotNull().distinct()
 
             val res = newStates.maxOf {
                 it.maxGeodes()
@@ -172,7 +176,7 @@ object Day19 {
     }
 
     fun part2(input: List<String>): Long {
-        val blueprints = parse(input).take(3)
+        val blueprints = parse(input).take(3).reversed()
         val factories = blueprints.map { FactoryState(it, remainingMinutes = 32) }
         val geodes = factories.asSequence().map {
             val res = it.maxGeodes()
@@ -198,11 +202,11 @@ fun main() {
         Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian.
     """.trimIndent().split("\n")
     println("------Tests------")
-    println(Day19.part1(testInput))
-    println(Day19.part2(testInput))
+    println("part 1: " + Day19.part1(testInput))
+    //println("part 2: " + Day19.part2(testInput))
 
     println("------Real------")
     val input = readInput("resources/day19")
-    println(Day19.part1(input))
-    println(Day19.part2(input))
+    println("part 1: " + Day19.part1(input))
+    println("part 2: " + Day19.part2(input))
 }
