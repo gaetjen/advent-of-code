@@ -1,5 +1,4 @@
 import kotlin.math.ceil
-import kotlin.math.max
 
 object Day19 {
     class Resources(
@@ -11,12 +10,6 @@ object Day19 {
         constructor(list: List<Int>) : this(list[0], list[1], list[2], list[3])
 
         val amounts = listOf(ore, clay, obsidian, geode)
-        val ore: Int
-            get() = amounts[0]
-        val clay: Int
-            get() = amounts[1]
-        val obsidian: Int
-            get() = amounts[2]
         val geode: Int
             get() = amounts[3]
 
@@ -110,9 +103,12 @@ object Day19 {
                         robotNumbers = robotNumbers + singleRobots[idx]
                     )
                 }
-            }.filterNotNull().distinct()
+            }
 
-            val res = newStates.maxOf {
+            val res = if (minutes.last() == 1) {
+                newStates.last()?.maxGeodes() ?: skipState.maxGeodes()
+            } else
+                newStates.filterNotNull().distinct().maxOf {
                 it.maxGeodes()
             }
             calculatedStates[key()] = res
@@ -176,7 +172,7 @@ object Day19 {
     }
 
     fun part2(input: List<String>): Long {
-        val blueprints = parse(input).take(3).reversed()
+        val blueprints = parse(input).take(3)
         val factories = blueprints.map { FactoryState(it, remainingMinutes = 32) }
         val geodes = factories.asSequence().map {
             val res = it.maxGeodes()
@@ -196,7 +192,7 @@ fun main() {
     val testInput1 = """
         Blueprint 1: Each ore robot costs 100 ore. Each clay robot costs 100 ore. Each obsidian robot costs 100 ore and 100 clay. Each geode robot costs 100 ore and 100 obsidian.        
     """.trimIndent().split("\n")
-    //println(Day19.part1(testInput1, 30))
+    println(Day19.part1(testInput1, 30))
     val testInput = """
         Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
         Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian.
@@ -208,5 +204,6 @@ fun main() {
     println("------Real------")
     val input = readInput("resources/day19")
     println("part 1: " + Day19.part1(input))
+    // bp 1: 10, bp 3: 37
     println("part 2: " + Day19.part2(input))
 }
