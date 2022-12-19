@@ -1,3 +1,4 @@
+import kotlin.math.ceil
 import kotlin.math.max
 
 object Day19 {
@@ -77,6 +78,9 @@ object Day19 {
         }
 
         fun maxGeodes(): Int {
+            if (remainingMinutes == 0) {
+                return collected.geode
+            }
             if (remainingMinutes == 1) {
                 return collected.geode + robotNumbers.geode
             }
@@ -91,22 +95,24 @@ object Day19 {
                 if (min == null) {
                     null
                 } else if (min >= remainingMinutes) {
-                    val res = collected.geode + robotNumbers.geode * remainingMinutes
-                    calculatedStates[key()] = res
-                    return res
+                    this.copy(
+                        remainingMinutes = 0,
+                        collected = collected + robotNumbers * remainingMinutes
+                    )
                 } else {
                     this.copy(
-                        remainingMinutes = remainingMinutes - min - 1,
-                        collected = collected + robotNumbers * (min + 1) - blueprint[idx],
+                        remainingMinutes = remainingMinutes - min,
+                        collected = collected + robotNumbers * min - blueprint[idx],
                         robotNumbers = robotNumbers + singleRobots[idx]
                     )
                 }
-            }.filterNotNull().sortedByDescending { it.collected.geode }
-            var currentBest = 0
-            newStates.forEach {
-                currentBest = max(currentBest, it.maxGeodes())
+            }.filterNotNull().reversed()
+
+            val res = newStates.maxOf {
+                it.maxGeodes()
             }
-            return currentBest
+            calculatedStates[key()] = res
+            return res
         }
 
         fun minutesToMake(): List<Int?> {
@@ -115,13 +121,18 @@ object Day19 {
 
         private fun minutesToMake(cost: Resources): Int? {
             val remainingCost = cost - collected
-            /*if (remainingCost.amounts.all { it <= 0 }) {
-                return 1
-            }*/
             if (cost.amounts.zip(robotNumbers.amounts).any { (c, r) -> c > 0 && r == 0 }) {
                 return null
             }
-            return remainingCost.amounts.zip(robotNumbers.amounts).maxOfOrNull { (c, r) -> if (c <= 0) 1 else c / r + 1 }
+            return remainingCost.amounts.zip(robotNumbers.amounts).maxOfOrNull { (c, r) -> minutesToGetResources(c, r) }
+        }
+
+        private fun minutesToGetResources(c: Int, r: Int): Int {
+            return if (c <= 0) {
+                1
+            } else {
+                ceil(c.toDouble() / r).toInt() + 1
+            }
         }
     }
 
@@ -146,16 +157,34 @@ object Day19 {
 
     fun part1(input: List<String>, remainingMinutes: Int = 24): Int {
         val blueprints = parse(input)
+        println(blueprints)
         val factories = blueprints.map { FactoryState(it, remainingMinutes = remainingMinutes) }
-        return factories.map { it.maxGeodes() }.mapIndexed { index, geodes ->
+        return factories.asSequence().map {
+            val res = it.maxGeodes()
+            println("did cache lookups: " + FactoryState.cacheLookups)
+            println("number states: " + FactoryState.calculatedStates.size)
+            FactoryState.calculatedStates.clear()
+            res
+        }.mapIndexed { index, geodes ->
             println("${index + 1}: $geodes")
             (index + 1) * geodes
         }.sum()
     }
 
     fun part2(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+        val blueprints = parse(input).take(3)
+        val factories = blueprints.map { FactoryState(it, remainingMinutes = 32) }
+        val geodes = factories.asSequence().map {
+            val res = it.maxGeodes()
+            println("did cache lookups: " + FactoryState.cacheLookups)
+            println("number states: " + FactoryState.calculatedStates.size)
+            FactoryState.calculatedStates.clear()
+            res
+        }.mapIndexed { index, geodes ->
+            println("${index + 1}: $geodes")
+            geodes
+        }
+        return geodes.reduce { acc, i -> acc * i }.toLong()
     }
 }
 
@@ -169,7 +198,7 @@ fun main() {
         Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian.
     """.trimIndent().split("\n")
     println("------Tests------")
-    println(Day19.part1(testInput, 24))
+    println(Day19.part1(testInput))
     println(Day19.part2(testInput))
 
     println("------Real------")
