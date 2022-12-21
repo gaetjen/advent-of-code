@@ -1,33 +1,51 @@
 object Day21 {
-    sealed class Monkey {
+    sealed class Monkey(val name: String) {
+        //abstract val name: String
         companion object {
             val allMonkeys: MutableMap<String, Monkey> = mutableMapOf()
+            val allDependents: MutableMap<String, List<String>> = mutableMapOf()
         }
+
         abstract fun result(): Long
-        data class Number(val result: Long) : Monkey() {
+        abstract fun dependents(): List<String>
+        class Number(name: String, val result: Long) : Monkey(name) {
             override fun result(): Long {
                 return result
             }
 
+            override fun dependents(): List<String> {
+                return listOf(name)
+            }
+
         }
-        data class Operator(
+
+        class Operator(
+            name: String,
             val op1: String,
             val op2: String,
-            val operation: (Long, Long) -> Long) : Monkey() {
+            val operation: String,
+        ) : Monkey(name) {
             override fun result(): Long {
                 val r1 = allMonkeys[op1]?.result()!!
                 val r2 = allMonkeys[op2]?.result()!!
-                return operation(r1, r2)
+                return operation.toOperation()(r1, r2)
+            }
+
+            override fun dependents(): List<String> {
+                if (name !in allDependents) {
+                    allDependents[name] = allMonkeys[op1]!!.dependents() + allMonkeys[op2]!!.dependents()
+                }
+                return allDependents[name]!!
             }
         }
 
     }
 
     fun String.toOperation() = when (this) {
-        "+" -> {a: Long, b: Long -> a + b}
-        "-" -> {a: Long, b: Long -> a - b}
-        "*" -> {a: Long, b: Long -> a * b}
-        "/" -> {a: Long, b: Long -> a / b}
+        "+" -> { a: Long, b: Long -> a + b }
+        "-" -> { a: Long, b: Long -> a - b }
+        "*" -> { a: Long, b: Long -> a * b }
+        "/" -> { a: Long, b: Long -> a / b }
         else -> error("not an operation!")
     }
 
@@ -37,9 +55,9 @@ object Day21 {
             val name = elements.first()
             val tail = elements.last().split(" ")
             val monke = if (tail.size == 1) {
-                Monkey.Number(elements.last().toLong())
+                Monkey.Number(name, elements.last().toLong())
             } else {
-                Monkey.Operator(tail[0], tail.last(), tail[1].toOperation())
+                Monkey.Operator(name, tail[0], tail.last(), tail[1])
             }
             name to monke
         }
@@ -52,17 +70,54 @@ object Day21 {
     }
 
     fun part2(input: List<String>): Long {
+        Monkey.allMonkeys.clear()
+        Monkey.allDependents.clear()
         parse(input)
-        /*
-        for (t in 0..1_000_000L) {
-            Monkey.allMonkeys["humn"] = Monkey.Number(t)
-            if (Monkey.allMonkeys["root"]?.result() == 0L) {
-                return t
-            }
+        val monkeyNames = Monkey.allMonkeys.keys
+        val calledNames = Monkey.allMonkeys.values.filterIsInstance<Monkey.Operator>().flatMap { listOf(it.op1, it.op2) }
+        println("num monkeys :" + monkeyNames.size)
+        println("called monkeys :" + calledNames.size)
+        println("unique called :" + calledNames.toSet().size)
+        println(monkeyNames - calledNames.toSet())
+        var c1 = (Monkey.allMonkeys["root"]!! as Monkey.Operator).op1
+        var c2 = (Monkey.allMonkeys["root"]!! as Monkey.Operator).op2
+        var (currentRoot, desiredResult) = if ("humn" in Monkey.allMonkeys[c1]!!.dependents()) {
+            c1 to Monkey.allMonkeys[c2]!!.result()
+        } else {
+            c2 to Monkey.allMonkeys[c1]!!.result()
         }
-        error("nothing found")
-        //return 0L*/
-        return 0L
+
+        while (true) {
+            if (c1 == "humn" || c2 == "humn") {
+                return desiredResult
+            }
+            val rootMonkey = Monkey.allMonkeys[currentRoot] as Monkey.Operator
+            c1 = rootMonkey.op1
+            c2 = rootMonkey.op2
+            val (nextRoot, subResult) = if ("humn" in Monkey.allMonkeys[c1]!!.dependents()) {
+                c1 to Monkey.allMonkeys[c2]!!.result()
+            } else {
+                c2 to Monkey.allMonkeys[c1]!!.result()
+            }
+            desiredResult = nextDesired(rootMonkey, c1, nextRoot, desiredResult, subResult)
+            currentRoot = nextRoot
+        }
+    }
+
+    private fun nextDesired(
+        rootMonkey: Monkey.Operator,
+        first: String,
+        nextRoot: String,
+        currentResult: Long,
+        subResult: Long,
+    ): Long {
+        return when (rootMonkey.operation) {
+            "+" -> currentResult - subResult
+            "*" -> currentResult / subResult
+            "-" -> if (nextRoot == first) currentResult + subResult else -currentResult + subResult
+            "/" -> if (nextRoot == first) currentResult * subResult else subResult / currentResult
+            else -> error("not operator")
+        }
     }
 }
 
