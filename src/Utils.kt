@@ -27,6 +27,8 @@ fun <T> transpose(matrix: List<List<T>>): List<List<T>> {
     }
 }
 
+operator fun <T> List<List<T>>.get(p: Pos) = this[p.first][p.second]
+
 fun <T> getRow(grid: List<List<T>>, rowIdx: Int) = grid[rowIdx]
 fun <T> getCol(grid: List<List<T>>, colIdx: Int) = grid.map { it[colIdx] }
 
@@ -56,8 +58,7 @@ fun <T> List<T>.split(predicate: (T) -> Boolean): List<List<T>> {
 private operator fun <T> ((T) -> Boolean).not(): (T) -> Boolean = { input -> !this(input) }
 
 enum class Direction {
-    UP, DOWN, LEFT, RIGHT;
-
+    UP, RIGHT, DOWN, LEFT;
     companion object {
         fun fromChar(c: Char): Direction {
             return when (c) {
@@ -68,6 +69,7 @@ enum class Direction {
                 else -> error("$c is not a direction")
             }
         }
+        //operator fun get(idx: Int) = values()[idx]
     }
 
     fun move(pos: Pair<Int, Int>): Pair<Int, Int> {
