@@ -57,8 +57,25 @@ fun <T> List<T>.split(predicate: (T) -> Boolean): List<List<T>> {
 
 private operator fun <T> ((T) -> Boolean).not(): (T) -> Boolean = { input -> !this(input) }
 
+enum class Cardinal {
+    NORTH, SOUTH, WEST, EAST;
+    companion object {
+        val diagonals = listOf(NORTH to WEST, NORTH to EAST, SOUTH to WEST, SOUTH to EAST)
+    }
+    fun of(pos: Pair<Int, Int>): Pair<Int, Int> {
+        val (fromRow, fromCol) = pos
+        return when (this) {
+            NORTH -> fromRow - 1 to fromCol
+            SOUTH -> fromRow + 1 to fromCol
+            WEST -> fromRow to fromCol - 1
+            EAST -> fromRow to fromCol + 1
+        }
+    }
+}
+
 enum class Direction {
     UP, RIGHT, DOWN, LEFT;
+
     companion object {
         fun fromChar(c: Char): Direction {
             return when (c) {
@@ -69,7 +86,6 @@ enum class Direction {
                 else -> error("$c is not a direction")
             }
         }
-        //operator fun get(idx: Int) = values()[idx]
     }
 
     fun move(pos: Pair<Int, Int>): Pair<Int, Int> {
@@ -91,4 +107,30 @@ enum class Direction {
             RIGHT -> fromX + 1 to fromY
         }
     }
+}
+
+fun minMax(gridPositions: Set<Pos>): Pair<Pos, Pos> {
+    val minRow = gridPositions.minOf { it.first }
+    val maxRow = gridPositions.maxOf { it.first }
+    val minCol = gridPositions.minOf { it.second }
+    val maxCol = gridPositions.maxOf { it.second }
+    return (minRow to minCol) to (maxRow to maxCol)
+}
+
+fun printGrid(positions: Map<Pos, Char>) {
+    println("number positions in grid: ${positions.size}")
+    val (min, max) = minMax(positions.keys)
+    val (minRow, minCol) = min
+    val (maxRow, maxCol) = max
+    val result = List(maxRow - minRow + 1) { rowIdx ->
+        List(maxCol - minCol + 1) { colIdx ->
+            if (rowIdx + minRow to colIdx + minCol in positions) {
+                positions[rowIdx + minRow to colIdx + minCol]
+            } else {
+                ' '
+            }
+        }.joinToString("")
+    }
+    println(result.joinToString("\n"))
+    println("------------------------------------------------------------")
 }

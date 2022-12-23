@@ -193,25 +193,6 @@ object Day22 {
         return (map.pos.first + 1) * 1000L + (map.pos.second + 1) * 4 + dirNum(map.dir)
     }
 
-    private fun printGrid(positions: Map<Pos, Char>) {
-        println("number positions in grid: ${positions.size}")
-        val minRow = positions.keys.minOf { it.first }
-        val maxRow = positions.keys.maxOf { it.first }
-        val minCol = positions.keys.minOf { it.second }
-        val maxCol = positions.keys.maxOf { it.second }
-        val result = List(maxRow - minRow + 1) { rowIdx ->
-            List(maxCol - minCol + 1) { colIdx ->
-                if (rowIdx + minRow to colIdx + minCol in positions) {
-                    positions[rowIdx + minRow to colIdx + minCol]
-                } else {
-                    ' '
-                }
-            }.joinToString("")
-        }
-        println(result.joinToString("\n"))
-        println("------------------------------------------------------------")
-    }
-
 }
 
 fun main() {
