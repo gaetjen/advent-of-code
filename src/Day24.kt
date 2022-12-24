@@ -85,8 +85,7 @@ object Day24 {
         .filter {
             (it.first in 0 until valley.height && it.second in 0 until valley.width)
                     || it == -1 to 0 || it == valley.end
-        }
-        .filter { p -> p !in valley.blizzards.map { it.pos } }.toSet()
+        }.toSet() - valley.blizzards.map { it.pos }.toSet()
 }
 
 fun main() {
