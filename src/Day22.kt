@@ -174,9 +174,9 @@ object Day22 {
         println("number points edges: ${edges.flatten().size} / ${edges.flatten().distinct().size}")
         val flatEdges = edges.flatten().map { it.pos }.toSet()
         val flatLandings = landingPoints.flatten().toSet()
-        printGrid(flatEdges.associateWith { '█' })
-        val edgeWalls = flatEdges.filter { map.tiles[it] is MapTile.Wall }.associateWith { '#' }
-        val landingChars = flatLandings.associateWith { '█' } + edgeWalls
+        printGrid(flatEdges.associateWith { "█" })
+        val edgeWalls = flatEdges.filter { map.tiles[it] is MapTile.Wall }.associateWith { "#" }
+        val landingChars = flatLandings.associateWith { "█" } + edgeWalls
         printGrid(landingChars)
     }
 

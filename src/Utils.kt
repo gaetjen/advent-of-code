@@ -117,7 +117,7 @@ fun minMax(gridPositions: Set<Pos>): Pair<Pos, Pos> {
     return (minRow to minCol) to (maxRow to maxCol)
 }
 
-fun printGrid(positions: Map<Pos, Char>) {
+fun printGrid(positions: Map<Pos, String>, width: Int = 1) {
     println("number positions in grid: ${positions.size}")
     val (min, max) = minMax(positions.keys)
     val (minRow, minCol) = min
@@ -127,7 +127,7 @@ fun printGrid(positions: Map<Pos, Char>) {
             if (rowIdx + minRow to colIdx + minCol in positions) {
                 positions[rowIdx + minRow to colIdx + minCol]
             } else {
-                ' '
+                " ".repeat(width)
             }
         }.joinToString("")
     }

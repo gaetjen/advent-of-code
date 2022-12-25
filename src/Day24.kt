@@ -3,6 +3,7 @@ import Cardinal.NORTH
 import Cardinal.SOUTH
 import Cardinal.WEST
 import Cardinal.values
+import kotlin.system.measureTimeMillis
 
 object Day24 {
     data class Blizzard(val pos: Pos, val dir: Cardinal)
@@ -46,33 +47,39 @@ object Day24 {
             minutes++
             valley.step()
             frontier = nextFrontier(frontier, valley)
-            //println("minute: $minutes")
-            //printGrid(frontier.associateWith { '□' } + valley.blizzards.associate { it.pos to '❄' })
         }
         return minutes
     }
 
     fun part2(input: List<String>): Int {
         val valley = parse(input)
+        val sizes = mutableListOf(1)
         var frontier = setOf(-1 to 0)
         var minutes = 0
         while (valley.end !in frontier) {
             minutes++
             valley.step()
             frontier = nextFrontier(frontier, valley)
+            sizes.add(frontier.size)
         }
+        printGrid(frontier.associateWith { "[]" } + valley.blizzards.associate { it.pos to "**" }, 2)
         frontier = setOf(valley.end)
         while (-1 to 0 !in frontier) {
             minutes++
             valley.step()
             frontier = nextFrontier(frontier, valley)
+            sizes.add(frontier.size)
         }
+        printGrid(frontier.associateWith { "[]" } + valley.blizzards.associate { it.pos to "**" }, 2)
         frontier = setOf(-1 to 0)
         while (valley.end !in frontier) {
             minutes++
             valley.step()
             frontier = nextFrontier(frontier, valley)
+            sizes.add(frontier.size)
         }
+        printGrid(frontier.associateWith { "[]" } + valley.blizzards.associate { it.pos to "**" }, 2)
+        println("max frontier: ${sizes.max()}")
         return minutes
     }
 
@@ -104,5 +111,8 @@ fun main() {
     println("------Real------")
     val input = readInput("resources/day24")
     println(Day24.part1(input))
-    println(Day24.part2(input))
+    val t = measureTimeMillis {
+        println(Day24.part2(input))
+    }
+    println("millis elapsed: $t")
 }
