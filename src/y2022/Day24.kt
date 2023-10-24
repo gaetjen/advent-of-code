@@ -1,8 +1,13 @@
-import Cardinal.EAST
-import Cardinal.NORTH
-import Cardinal.SOUTH
-import Cardinal.WEST
-import Cardinal.values
+package y2022
+
+import util.Cardinal
+import util.Cardinal.EAST
+import util.Cardinal.NORTH
+import util.Cardinal.SOUTH
+import util.Cardinal.WEST
+import util.Cardinal.values
+import util.printGrid
+import util.readInput
 import kotlin.system.measureTimeMillis
 
 object Day24 {
@@ -109,7 +114,7 @@ fun main() {
     println(Day24.part2(testInput))
 
     println("------Real------")
-    val input = readInput("resources/day24")
+    val input = readInput("resources/2022/day24")
     println(Day24.part1(input))
     val t = measureTimeMillis {
         println(Day24.part2(input))

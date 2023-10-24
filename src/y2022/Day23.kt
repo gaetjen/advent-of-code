@@ -1,4 +1,9 @@
-import Cardinal.*
+package y2022
+
+import util.Cardinal
+import util.Cardinal.*
+import util.minMax
+import util.readInput
 import java.util.Collections
 
 object Day23 {
@@ -92,7 +97,7 @@ fun main() {
     println(Day23.part2(testInput))
 
     println("------Real------")
-    val input = readInput("resources/day23")
+    val input = readInput("resources/2022/day23")
     println(Day23.part1(input))
     println(Day23.part2(input))
 }

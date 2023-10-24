@@ -1,3 +1,7 @@
+package y2022
+
+import util.readInput
+
 object Day05 {
     data class Move(
         val amount: Int,
@@ -73,7 +77,7 @@ object Day05 {
   1   2   3   4   5   6   7   8   9
  */
 fun main() {
-    val input = readInput("resources/day05")
+    val input = readInput("resources/2022/day05")
     val stacks = input.takeWhile { it.isNotEmpty() }
     val moves = input.dropWhile { it.isNotEmpty() }.drop(1)
 

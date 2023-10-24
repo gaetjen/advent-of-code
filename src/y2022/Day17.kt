@@ -1,3 +1,8 @@
+package y2022
+
+import util.Direction
+import util.PosL
+import util.readInput
 import java.lang.Long.max
 
 object Day17 {
@@ -139,7 +144,7 @@ fun main() {
     println(Day17.part2(testInput, 2022))
     println(Day17.part2(testInput, 1_000_000_000_000))
     println("------Real------")
-    val input = readInput("resources/day17").first()
+    val input = readInput("resources/2022/day17").first()
     println(Day17.part2(input, 2022))
     // wrong: 1536416184990 (too low)
     println(Day17.part2(input, 1_000_000_000_000))

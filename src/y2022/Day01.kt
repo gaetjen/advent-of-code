@@ -1,3 +1,8 @@
+package y2022
+
+import util.readInput
+import util.split
+
 fun main() {
     fun inputToCalories(input: List<String>): List<Int> {
         return input
@@ -16,7 +21,7 @@ fun main() {
     }
 
 
-    val input = readInput("resources/day01_part1")
+    val input = readInput("resources/2022/day01_part1")
     println(part1(input))
     println(part2(input))
 }

@@ -1,3 +1,8 @@
+package y2022
+
+import util.readInput
+import util.split
+
 object Day11 {
     data class Monkey(
         var items: MutableList<Long>,
@@ -114,7 +119,7 @@ Monkey 3:
     println(Day11.part2(testInput))
 
     println("------Real------")
-    val input = readInput("resources/day11")
+    val input = readInput("resources/2022/day11")
     println(Day11.part1(input))
     println(Day11.part2(input))
 }

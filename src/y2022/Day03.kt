@@ -1,3 +1,7 @@
+package y2022
+
+import util.readInput
+
 object Day03 {
     fun part1(input: List<String>): Int {
         return input.sumOf { wrongItem(it) }
@@ -31,7 +35,7 @@ object Day03 {
 }
 
 fun main() {
-    val input = readInput("resources/day03")
+    val input = readInput("resources/2022/day03")
     println(Day03.part1(input))
     println(Day03.part2(input))
 }

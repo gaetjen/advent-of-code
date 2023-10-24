@@ -1,3 +1,7 @@
+package y2022
+
+import util.readInput
+
 object Day10 {
     sealed class Command {
         abstract fun process(register: Int): List<Int>
@@ -208,7 +212,7 @@ fun main() {
     println(Day10.part2(testInput))
 
     println("------Real------")
-    val input = readInput("resources/day10")
+    val input = readInput("resources/2022/day10")
     println(Day10.part1(input))
     println(Day10.part2(input))
 }

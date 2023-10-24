@@ -1,3 +1,7 @@
+package y2022
+
+import util.readInput
+
 object Day06 {
     fun part1(input: String): Int {
         return numberOfCharsBeforeNDistinct(input, 4)
@@ -17,7 +21,7 @@ object Day06 {
 
 fun main() {
     println(Day06.part1("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw"))
-    val input = readInput("resources/day06")
+    val input = readInput("resources/2022/day06")
     println(Day06.part1(input.first()))
     println(Day06.part2(input.first()))
 }

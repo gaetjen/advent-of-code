@@ -1,3 +1,7 @@
+package y2022
+
+import util.readInput
+
 object Day07 {
     data class File(
         val size: Long?,
@@ -107,7 +111,7 @@ val testInput = """
 fun main() {
     println(Day07.part1(testInput.split("\n").drop(1)))
     // wrong: 1081027
-    val input = readInput("resources/day07")
+    val input = readInput("resources/2022/day07")
     println(Day07.part1(input.drop(1)))
     println(Day07.part2(input.drop(1)))
 }

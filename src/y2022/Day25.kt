@@ -1,3 +1,7 @@
+package y2022
+
+import util.readInput
+
 object Day25 {
     private fun powersOf(n: Int) = sequence {
         var p = 1L
@@ -73,6 +77,6 @@ fun main() {
     println(Day25.part1(testInput))
 
     println("------Real------")
-    val input = readInput("resources/day25")
+    val input = readInput("resources/2022/day25")
     println(Day25.part1(input))
 }

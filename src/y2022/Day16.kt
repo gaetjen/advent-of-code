@@ -1,3 +1,6 @@
+package y2022
+
+import util.readInput
 import java.lang.Integer.max
 
 object Day16 {
@@ -212,7 +215,7 @@ fun main() {
     println("part 2 for cheatBreaker cheated solution: " + Day16.part2Cheat(cheatBreak, listOf("DD", "EE"), 6))
 
     println("------Real------")
-    val input = readInput("resources/day16")
+    val input = readInput("resources/2022/day16")
     println("part 1: " + Day16.part1(input))
     println("part 2 cheat: " + Day16.part2Cheat(input, listOf("DM", "XS", "KI", "DU", "ZK", "LC", "IY", "VF", "BD")))
     println("part 2: " + Day16.part2(input))

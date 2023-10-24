@@ -1,3 +1,7 @@
+package y2022
+
+import util.readInput
+
 object Day21 {
     sealed class Monkey(val name: String) {
         //abstract val name: String
@@ -144,7 +148,7 @@ fun main() {
     println(Day21.part2(testInput))
 
     println("------Real------")
-    val input = readInput("resources/day21")
+    val input = readInput("resources/2022/day21")
     println(Day21.part1(input))
     println(Day21.part2(input))
 }

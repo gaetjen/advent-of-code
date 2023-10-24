@@ -1,3 +1,7 @@
+package y2022
+
+import util.readInput
+
 typealias Vector = Triple<Int, Int, Int>
 
 object Day18 {
@@ -76,7 +80,7 @@ fun main() {
     println(Day18.part2(testInput))
 
     println("------Real------")
-    val input = readInput("resources/day18")
+    val input = readInput("resources/2022/day18")
     println(Day18.part1(input))
     println(Day18.part2(input))
 }

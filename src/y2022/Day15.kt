@@ -1,3 +1,6 @@
+package y2022
+
+import util.readInput
 import kotlin.math.abs
 
 object Day15 {
@@ -111,7 +114,7 @@ fun main() {
     println(Day15.part2(testInput, 20))
 
     println("------Real------")
-    val input = readInput("resources/day15")
+    val input = readInput("resources/2022/day15")
     println(Day15.part1(input, 2000000))
     println(3405562L * 4000000L + 3246513L)
     println(Day15.part2(input, 4000000))

@@ -1,3 +1,10 @@
+package y2022
+
+import util.getCol
+import util.getRow
+import util.readInput
+import util.split
+
 object Day08 {
 
     fun part1(input: List<String>): Int {
@@ -63,7 +70,7 @@ fun main() {
 """.trimIndent().split("\n")
     println("all of empty: " + listOf<Boolean>().all { true })
     println(Day08.part1(testInput))
-    val input = readInput("resources/day08")
+    val input = readInput("resources/2022/day08")
     println(Day08.part1(input))
     println(Day08.part2(testInput))
     println(Day08.part2(input))

@@ -1,3 +1,8 @@
+package y2022
+
+import util.Direction
+import util.readInput
+
 typealias Pos = Pair<Int, Int>
 
 object Day12 {
@@ -96,7 +101,7 @@ fun main() {
     println(Day12.part2(testInput))
 
     println("------Real------")
-    val input = readInput("resources/day12")
+    val input = readInput("resources/2022/day12")
     println(Day12.part1(input))
     println(Day12.part2(input))
 }

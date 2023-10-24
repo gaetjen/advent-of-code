@@ -1,3 +1,6 @@
+package y2022
+
+import util.readInput
 import kotlin.math.abs
 
 object Day09 {
@@ -123,7 +126,7 @@ fun main() {
     println(Day09.part2(test2))
 
     println("------Real------")
-    val input = readInput("resources/day09")
+    val input = readInput("resources/2022/day09")
     // wrong: 11292
     println(Day09.part1(input))
     // wrong: 2627

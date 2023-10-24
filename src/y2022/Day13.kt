@@ -1,3 +1,8 @@
+package y2022
+
+import util.readInput
+import util.split
+
 object Day13 {
     private fun parse(input: List<String>): List<List<ListItem>> {
         return input.split { it.isEmpty() }
@@ -122,7 +127,7 @@ fun main() {
     println(Day13.part2(testInput))
 
     println("------Real------")
-    val input = readInput("resources/day13")
+    val input = readInput("resources/2022/day13")
     println(Day13.part1(input))
     println(Day13.part2(input))
 }

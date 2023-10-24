@@ -1,3 +1,8 @@
+package y2022
+
+import util.Direction
+import util.readInput
+
 object Day14 {
     private fun parse(input: List<String>): Set<Pos> {
         return input.map { lineToCoordinates(it) }.flatten().toSet()
@@ -92,7 +97,7 @@ fun main() {
     println(Day14.part2(testInput))
 
     println("------Real------")
-    val input = readInput("resources/day14")
+    val input = readInput("resources/2022/day14")
     println(Day14.part1(input))
     println(Day14.part2(input))
 }

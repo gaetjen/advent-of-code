@@ -1,3 +1,7 @@
+package y2022
+
+import util.readInput
+
 object Day04 {
     fun part1(input: List<String>): Int {
         return input.count { fullyContains(it) }
@@ -32,7 +36,7 @@ object Day04 {
 }
 
 fun main() {
-    val input = readInput("resources/day04")
+    val input = readInput("resources/2022/day04")
     println(Day04.part1(input))
     println(Day04.part2(input))
 }

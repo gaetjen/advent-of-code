@@ -1,3 +1,7 @@
+package y2022
+
+import util.readInput
+
 object Day20 {
     class Node(
         val value: Long,
@@ -97,7 +101,7 @@ fun main() {
     println(Day20.part2(testInput))
 
     println("------Real------")
-    val input = readInput("resources/day20")
+    val input = readInput("resources/2022/day20")
     println(Day20.part1(input))
     println(Day20.part2(input))
 }

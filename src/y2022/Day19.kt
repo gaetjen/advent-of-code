@@ -1,3 +1,7 @@
+package y2022
+
+import util.readInput
+import util.transpose
 import kotlin.math.ceil
 
 object Day19 {
@@ -202,7 +206,7 @@ fun main() {
     //println("part 2: " + Day19.part2(testInput))
 
     println("------Real------")
-    val input = readInput("resources/day19")
+    val input = readInput("resources/2022/day19")
     println("part 1: " + Day19.part1(input))
     // bp 1: 10, bp 3: 37
     println("part 2: " + Day19.part2(input))

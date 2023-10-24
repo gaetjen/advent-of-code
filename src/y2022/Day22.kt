@@ -1,7 +1,15 @@
-import Direction.DOWN
-import Direction.LEFT
-import Direction.RIGHT
-import Direction.UP
+package y2022
+
+import util.Direction
+import util.Direction.DOWN
+import util.Direction.LEFT
+import util.Direction.RIGHT
+import util.Direction.UP
+import util.printGrid
+import util.readInput
+import util.split
+import util.transpose
+import util.get
 
 object Day22 {
     sealed class Instruction {
@@ -221,7 +229,7 @@ fun main() {
     //println(Day22.part2(testInput))
 
     println("------Real------")
-    val input = readInput("resources/day22")
+    val input = readInput("resources/2022/day22")
     Day22.debug(input)
     println(Day22.part1(input))
     // 13383

@@ -1,3 +1,7 @@
+package y2022
+
+import util.readInput
+
 /**
  * A > Y
  * B > Z
@@ -42,7 +46,7 @@ fun inputToScore2(input: String): Int {
 }
 
 fun main() {
-    val input = readInput("resources/day02")
+    val input = readInput("resources/2022/day02")
     println(part1(input))
     println(part2(input))
 }
