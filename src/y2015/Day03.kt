@@ -1,26 +1,48 @@
 package y2015
 
+import util.Direction
 import util.readInput
 
 object Day03 {
-    private fun parse(input: List<String>): Any {
-        TODO()
+    private fun parse(input: List<String>): List<Direction> {
+        return input.first()
+            .replace('>', 'R')
+            .replace('<', 'L')
+            .replace('^', 'U')
+            .replace('v', 'D')
+            .map { Direction.fromChar(it) }
     }
 
-    fun part1(input: List<String>): Long {
+    fun part1(input: List<String>): Int {
         val parsed = parse(input)
-        return 0L
+        val visited = allVisited(parsed)
+        return visited.size
     }
 
-    fun part2(input: List<String>): Long {
+    private fun allVisited(parsed: List<Direction>): MutableSet<Pair<Int, Int>> {
+        val visited = mutableSetOf(0 to 0)
+        //var lastPos = 0 to 0
+        parsed.fold(0 to 0) { acc, dir ->
+            val new = dir.move(acc)
+            visited.add(new)
+            new
+        }
+        return visited
+    }
+
+    fun part2(input: List<String>): Int {
         val parsed = parse(input)
-        return 0L
+        val chunks = parsed.chunked(2)
+        val santa = chunks.map { it.first() }
+        val robo = chunks.map { it.last() }
+        val visited = allVisited(santa) + allVisited(robo)
+        return visited.size
     }
 }
 
 fun main() {
     val testInput = """
-        
+        ^>v<
     """.trimIndent().split("\n")
     println("------Tests------")
     println(Day03.part1(testInput))
