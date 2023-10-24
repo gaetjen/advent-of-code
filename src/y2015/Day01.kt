@@ -3,24 +3,27 @@ package y2015
 import util.readInput
 
 object Day01 {
-    private fun parse(input: List<String>): Any {
-        TODO()
+    private fun parse(input: List<String>): String {
+        return input.first()
     }
 
     fun part1(input: List<String>): Long {
         val parsed = parse(input)
-        return 0L
+        return parsed.count { it == '(' }.toLong() - parsed.count { it == ')' }.toLong()
     }
 
     fun part2(input: List<String>): Long {
+
         val parsed = parse(input)
-        return 0L
+        return parsed.scan(0L) { acc, c ->
+            if (c == '(') acc + 1 else acc - 1
+        }.indexOfFirst { it == -1L }.toLong()
     }
 }
 
 fun main() {
     val testInput = """
-        
+        ))(((((
     """.trimIndent().split("\n")
     println("------Tests------")
     println(Day01.part1(testInput))
