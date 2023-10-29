@@ -1,7 +1,7 @@
 package y2015
 
 import util.getRange
-import util.printGrid
+import util.printMatrix
 import util.readInput
 import kotlin.math.max
 
@@ -69,6 +69,9 @@ object Day06 {
                 }
             }
         }
+        printMatrix(lightGrid) {
+            if (it.on) "*" else " "
+        }
         return lightGrid.flatten().filter { it.on }.size
     }
 
@@ -83,6 +86,9 @@ object Day06 {
                     else -> light.jump()
                 }
             }
+        }
+        printMatrix(lightGrid) {
+            it.brightness.toString()
         }
         return lightGrid.flatten().sumOf { it.brightness }
     }

@@ -103,3 +103,12 @@ fun printGrid(positions: Map<Pos, String>, width: Int = 1) {
     println(result.joinToString("\n"))
     println("------------------------------------------------------------")
 }
+
+fun <T> printMatrix(grid: List<List<T>>, toString: (T) -> String) {
+    grid.map { row ->
+        val output = row.joinToString(separator = "") { item ->
+            toString(item)
+        }
+        println(output)
+    }
+}
