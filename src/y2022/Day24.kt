@@ -6,6 +6,7 @@ import util.Cardinal.NORTH
 import util.Cardinal.SOUTH
 import util.Cardinal.WEST
 import util.Cardinal.values
+import util.Pos
 import util.printGrid
 import util.readInput
 import kotlin.system.measureTimeMillis

@@ -1,6 +1,7 @@
 package y2022
 
 import util.Direction
+import util.Pos
 import util.readInput
 
 object Day14 {

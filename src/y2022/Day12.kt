@@ -1,9 +1,8 @@
 package y2022
 
 import util.Direction
+import util.Pos
 import util.readInput
-
-typealias Pos = Pair<Int, Int>
 
 object Day12 {
     private fun parse(input: List<String>): Triple<List<List<Int>>, Pos, Pos> {

@@ -1,5 +1,6 @@
 package y2022
 
+import util.Pos
 import util.readInput
 import kotlin.math.abs
 

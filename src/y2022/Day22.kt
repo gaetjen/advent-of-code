@@ -5,6 +5,7 @@ import util.Direction.DOWN
 import util.Direction.LEFT
 import util.Direction.RIGHT
 import util.Direction.UP
+import util.Pos
 import util.printGrid
 import util.readInput
 import util.split

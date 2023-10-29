@@ -2,6 +2,7 @@ package y2022
 
 import util.Cardinal
 import util.Cardinal.*
+import util.Pos
 import util.minMax
 import util.readInput
 import java.util.Collections
