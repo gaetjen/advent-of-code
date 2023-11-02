@@ -27,16 +27,18 @@ object Day16 {
     }
 
     private fun isMatch(sue: Map<String, Int>): Boolean {
-        return sue["children"]?.let { it == 3 } ?: true &&
-                sue["cats"]?.let { it > 7 } ?: true &&
-                sue["samoyeds"]?.let { it == 2 } ?: true &&
-                sue["pomeranians"]?.let { it < 3 } ?: true &&
-                sue["akitas"]?.let { it == 0 } ?: true &&
-                sue["vizslas"]?.let { it == 0 } ?: true &&
-                sue["goldfish"]?.let { it < 5 } ?: true &&
-                sue["trees"]?.let { it > 3 } ?: true &&
-                sue["cars"]?.let { it == 2 } ?: true &&
-                sue["perfumes"]?.let { it == 1 } ?: true
+        return listOfNotNull(
+            sue["children"]?.let { it == 3 },
+            sue["cats"]?.let { it > 7 },
+            sue["samoyeds"]?.let { it == 2 },
+            sue["pomeranians"]?.let { it < 3 },
+            sue["akitas"]?.let { it == 0 },
+            sue["vizslas"]?.let { it == 0 },
+            sue["goldfish"]?.let { it < 5 },
+            sue["trees"]?.let { it > 3 },
+            sue["cars"]?.let { it == 2 },
+            sue["perfumes"]?.let { it == 1 })
+            .all { it }
     }
 }
 
