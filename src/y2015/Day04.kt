@@ -1,6 +1,5 @@
 package y2015
 
-import util.readInput
 import util.md5
 
 object Day04 {
