@@ -1,5 +1,8 @@
 package util
 
+import kotlin.math.max
+import kotlin.math.min
+
 
 typealias Pos = Pair<Int, Int>
 typealias PosL = Pair<Long, Long>
@@ -110,5 +113,17 @@ fun <T> printMatrix(grid: List<List<T>>, toString: (T) -> String) {
             toString(item)
         }
         println(output)
+    }
+}
+
+fun <T> getNeighbors(grid: List<List<T>>, pos: Pos): List<T> {
+    val minRow = max(0, pos.first - 1)
+    val maxRow = min(pos.first + 1, grid.size - 1)
+    val minCol = max(0, pos.second - 1)
+    val maxCol = min(pos.second + 1, grid.first().size - 1)
+    return (minRow..maxRow).flatMap { row ->
+        (minCol..maxCol).mapNotNull { col ->
+            if (row to col != pos) grid[row to col] else null
+        }
     }
 }

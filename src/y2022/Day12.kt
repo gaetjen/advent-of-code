@@ -30,7 +30,7 @@ object Day12 {
 
     private fun getNeighbors(grid: List<List<Int>>, pos: Pos): List<Pos> {
         val height = grid[pos]
-        return Direction.values().map {
+        return Direction.entries.map {
             it.move(pos)
         }.filter { (r, c) -> r in grid.indices && c in grid[r].indices }
             .filter { grid[it] <= height + 1 }
@@ -38,7 +38,7 @@ object Day12 {
 
     private fun getReverseNeighbors(grid: List<List<Int>>, pos: Pos): List<Pos> {
         val height = grid[pos]
-        return Direction.values().map {
+        return Direction.entries.map {
             it.move(pos)
         }.filter { (r, c) -> r in grid.indices && c in grid[r].indices }
             .filter { grid[it] >= height - 1 }
