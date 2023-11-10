@@ -11,6 +11,9 @@ data class Ingredient(
     val calories: Int
 )
 
+/**
+ * generate all possible ways [total] can be a sum of [n] non-negative integers, taking order into account
+ */
 fun generateSplits(total: Int, n: Int) : Sequence<List<Int>> = sequence {
     if (n <= 1) {
         yield(listOf(total))

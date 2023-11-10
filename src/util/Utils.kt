@@ -46,3 +46,37 @@ fun <T> List<T>.split(predicate: (T) -> Boolean): List<List<T>> {
 }
 
 private operator fun <T> ((T) -> Boolean).not(): (T) -> Boolean = { input -> !this(input) }
+
+/**
+ * Combinatorics: generate all the ways of selecting [n] elements from [list] (ignoring order)
+ */
+fun <T> generateTakes(list: List<T>, n: Int) : Sequence<List<T>> = sequence  {
+    if (n == 1) {
+        list.forEach {
+            yield(listOf(it))
+        }
+    } else {
+        list.dropLast(n).forEachIndexed { index, el ->
+            val tails = generateTakes(list.subList(index + 1, list.size), n - 1)
+            tails.forEach {
+                yield(listOf(el) + it)
+            }
+        }
+    }
+}
+
+fun Iterable<Int>.product(): Int {
+    var product = 1
+    for (element in this) {
+        product *= element
+    }
+    return product
+}
+
+fun Iterable<Long>.product(): Long {
+    var product = 1L
+    for (element in this) {
+        product *= element
+    }
+    return product
+}
