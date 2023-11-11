@@ -20,6 +20,9 @@ fun <T> transpose(matrix: List<List<T>>): List<List<T>> {
 }
 
 operator fun <T> List<List<T>>.get(p: Pos) = this[p.first][p.second]
+operator fun <T> MutableList<MutableList<T>>.set(p: Pos, value: T) {
+    this[p.first][p.second] = value
+}
 fun <T> getRow(grid: List<List<T>>, rowIdx: Int) = grid[rowIdx]
 fun <T> getCol(grid: List<List<T>>, colIdx: Int) = grid.map { it[colIdx] }
 
