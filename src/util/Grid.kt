@@ -7,6 +7,9 @@ import kotlin.math.min
 typealias Pos = Pair<Int, Int>
 typealias PosL = Pair<Long, Long>
 
+operator fun Pos.plus(b: Pos) = this.first + b.first to this.second + b.second
+operator fun Pos.times(b: Int) = this.first * b to this.second * b
+
 fun <T> transpose(matrix: List<List<T>>): List<List<T>> {
     return List(matrix.first().size) { rowIdx ->
         List(matrix.size) { colIdx ->
@@ -27,20 +30,37 @@ fun <T> getRange(grid: List<List<T>>, startRow: Int, startCol: Int, stopRow: Int
     }.flatten()
 }
 
-enum class Cardinal {
-    NORTH, SOUTH, WEST, EAST;
+enum class Cardinal(val relativePos: Pos) {
+    NORTH(-1 to 0),
+    EAST(0 to 1),
+    SOUTH(1 to 0),
+    WEST(0 to -1);
 
     companion object {
         val diagonals = listOf(NORTH to WEST, NORTH to EAST, SOUTH to WEST, SOUTH to EAST)
     }
 
     fun of(pos: Pair<Int, Int>): Pair<Int, Int> {
-        val (fromRow, fromCol) = pos
-        return when (this) {
-            NORTH -> fromRow - 1 to fromCol
-            SOUTH -> fromRow + 1 to fromCol
-            WEST -> fromRow to fromCol - 1
-            EAST -> fromRow to fromCol + 1
+        return pos + relativePos
+    }
+
+    fun turn(direction: Turn): Cardinal {
+        return when (direction) {
+            Turn.RIGHT -> Cardinal.entries[(this.ordinal + 1) % 4]
+            Turn.LEFT -> Cardinal.entries[(this.ordinal - 1).mod(4)]
+        }
+    }
+}
+
+enum class Turn {
+    LEFT, RIGHT;
+    companion object {
+        fun fromChar(c: Char): Turn {
+            return when (c) {
+                'L' -> LEFT
+                'R' -> RIGHT
+                else -> error("$c is not a turn indicator")
+            }
         }
     }
 }
