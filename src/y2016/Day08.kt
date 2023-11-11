@@ -89,7 +89,7 @@ object Day08 {
             it.execute(display)
         }
         printMatrix(display) {
-            if (it) "█" else " "
+            if (it) "██" else "  "
         }
         val totalRect = parsed.sumOf {
             if (it is Rect) {
