@@ -5,8 +5,8 @@ import util.readInput
 object Day11 {
 
     fun part1(input: List<String>): Int {
-        // items per floor = 4, 5, 1
-        val cumulative = listOf(4, 9, 10)
+        val itemsPerFloor = input.map { it.split(" a ").size - 1 }
+        val cumulative = itemsPerFloor.scan(0) { acc, i -> acc + i }.drop(1).dropLast(1)
         /**
          * bringing n items up one floor taken 2*n - 3 steps (one up, one down each, minus the last down, and on the last up you can take
          * 2 items)
@@ -18,8 +18,8 @@ object Day11 {
     }
 
     fun part2(input: List<String>): Int {
-        // items per floor = 8, 5, 1
-        val cumulative = listOf(8, 13, 14)
+        val itemsPerFloor = input.map { it.split(" a ").size - 1 }
+        val cumulative = itemsPerFloor.scan(4) { acc, i -> acc + i }.drop(1).dropLast(1)
         return cumulative.sumOf { it * 2 - 3 }
     }
 }
