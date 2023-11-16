@@ -5,9 +5,9 @@ import util.printMatrix
 import util.readInput
 import util.set
 
-sealed class Instruction {
+sealed class LightsInstruction {
     companion object {
-        fun parse(string: String): Instruction {
+        fun parse(string: String): LightsInstruction {
             return when {
                 string.startsWith("rect") -> Rect.fromString(string)
                 string.startsWith("rotate column") -> RotateColumn.fromString(string)
@@ -20,7 +20,7 @@ sealed class Instruction {
     abstract fun execute(display: MutableList<MutableList<Boolean>>)
 }
 
-data class Rect(val columns: Int, val rows: Int) : Instruction() {
+data class Rect(val columns: Int, val rows: Int) : LightsInstruction() {
     companion object {
         fun fromString(str: String): Rect {
             val (columns, rows) = str.split(' ').last().split('x').map { it.toInt() }
@@ -37,7 +37,7 @@ data class Rect(val columns: Int, val rows: Int) : Instruction() {
     }
 }
 
-data class RotateRow(val row: Int, val distance: Int) : Instruction() {
+data class RotateRow(val row: Int, val distance: Int) : LightsInstruction() {
     companion object {
         fun fromString(str: String): RotateRow {
             val splits = str.split(' ')
@@ -53,7 +53,7 @@ data class RotateRow(val row: Int, val distance: Int) : Instruction() {
     }
 }
 
-data class RotateColumn(val column: Int, val distance: Int) : Instruction() {
+data class RotateColumn(val column: Int, val distance: Int) : LightsInstruction() {
     companion object {
         fun fromString(str: String): RotateColumn {
             val splits = str.split(' ')
@@ -74,9 +74,9 @@ data class RotateColumn(val column: Int, val distance: Int) : Instruction() {
 }
 
 object Day08 {
-    private fun parse(input: List<String>): List<Instruction> {
+    private fun parse(input: List<String>): List<LightsInstruction> {
         return input.map {
-            Instruction.parse(it)
+            LightsInstruction.parse(it)
         }
     }
 
