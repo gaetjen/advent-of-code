@@ -1,7 +1,11 @@
 package y2022
 
 import util.Cardinal
-import util.Cardinal.*
+import util.Cardinal.EAST
+import util.Cardinal.NORTH
+import util.Cardinal.SOUTH
+import util.Cardinal.WEST
+import util.Cardinal.entries
 import util.Pos
 import util.minMax
 import util.readInput
@@ -19,7 +23,7 @@ object Day23 {
     }
 
     val dirSequence = sequence {
-        val dirs = Cardinal.values().toList()
+        val dirs = entries
         while (true) {
             yield(dirs.toList())
             Collections.rotate(dirs, -1)
@@ -27,7 +31,7 @@ object Day23 {
     }
 
     fun Pos.neighbors(): List<Pos> {
-        return Cardinal.values().map { it.of(this) } + Cardinal.diagonals.map { (one, two) -> one.of(two.of(this)) }
+        return entries.map { it.of(this) } + Cardinal.diagonals.map { (one, two) -> one.of(two.of(this)) }
     }
 
     fun Pos.neighborsIn(d: Cardinal): List<Pos> {

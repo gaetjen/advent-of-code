@@ -1,33 +1,65 @@
 package y2016
 
-import util.readInput
+import util.Cardinal
+import util.Pos
 
 object Day13 {
-    private fun parse(input: List<String>): Any {
-        TODO()
+    fun isWall(favorite: Int, x: Int, y: Int): Boolean {
+        val n = x * x + 3 * x + 2 * x * y + y + y * y + favorite
+        val binary = n.toString(2)
+        return binary.count { it == '1' } % 2 == 1
     }
 
-    fun part1(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+    private fun Pos.neighbors(): List<Pos> {
+        return Cardinal.entries.map { it.of(this) }
     }
 
-    fun part2(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+    fun part1(favorite: Int, target: Pos): Int {
+        val start: Pos = 1 to 1
+        var steps = 0
+        val explored = mutableSetOf(start)
+        var current = setOf(start)
+        while (target !in current) {
+            current = current
+                .flatMap { it.neighbors() }
+                .filter { it.first >= 0 && it.second >= 0 }
+                .filter { !isWall(favorite, it.first, it.second) }
+                .filter { it !in explored }
+                .toSet()
+            explored.addAll(current)
+            steps++
+        }
+        return steps
+    }
+
+    fun part2(favorite: Int): Int {
+        val start: Pos = 1 to 1
+        var steps = 0
+        val explored = mutableSetOf(start)
+        var current = setOf(start)
+        while (steps < 50) {
+            current = current
+                .flatMap { it.neighbors() }
+                .filter { it.first >= 0 && it.second >= 0 }
+                .filter { !isWall(favorite, it.first, it.second) }
+                .filter { it !in explored }
+                .toSet()
+            explored.addAll(current)
+            steps++
+        }
+        return explored.size
     }
 }
 
 fun main() {
-    val testInput = """
-
-    """.trimIndent().split("\n")
+    val testFavorite = 10
+    val testTargetPos = 7 to 4
     println("------Tests------")
-    println(Day13.part1(testInput))
-    println(Day13.part2(testInput))
+    println(Day13.part1(testFavorite, testTargetPos))
 
     println("------Real------")
-    val input = readInput("resources/2016/day13")
-    println(Day13.part1(input))
-    println(Day13.part2(input))
+    val favorite = 1350
+    val targetPos = 31 to 39
+    println(Day13.part1(favorite, targetPos))
+    println(Day13.part2(favorite))
 }
