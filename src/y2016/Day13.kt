@@ -2,6 +2,7 @@ package y2016
 
 import util.Cardinal
 import util.Pos
+import util.printMatrix
 
 object Day13 {
     fun isWall(favorite: Int, x: Int, y: Int): Boolean {
@@ -62,4 +63,13 @@ fun main() {
     val targetPos = 31 to 39
     println(Day13.part1(favorite, targetPos))
     println(Day13.part2(favorite))
+
+    val officePlan = List(50) { y ->
+        List(50) { x->
+            Day13.isWall(favorite, x, y)
+        }
+    }
+    printMatrix(officePlan) {
+        if (it) "██" else "  "
+    }
 }
