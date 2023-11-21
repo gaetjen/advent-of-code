@@ -11,7 +11,7 @@ object Day13 {
         return binary.count { it == '1' } % 2 == 1
     }
 
-    private fun Pos.neighbors(): List<Pos> {
+    fun Pos.neighborsManhattan(): List<Pos> {
         return Cardinal.entries.map { it.of(this) }
     }
 
@@ -22,7 +22,7 @@ object Day13 {
         var current = setOf(start)
         while (target !in current) {
             current = current
-                .flatMap { it.neighbors() }
+                .flatMap { it.neighborsManhattan() }
                 .filter { it.first >= 0 && it.second >= 0 }
                 .filter { !isWall(favorite, it.first, it.second) }
                 .filter { it !in explored }
@@ -40,7 +40,7 @@ object Day13 {
         var current = setOf(start)
         while (steps < 50) {
             current = current
-                .flatMap { it.neighbors() }
+                .flatMap { it.neighborsManhattan() }
                 .filter { it.first >= 0 && it.second >= 0 }
                 .filter { !isWall(favorite, it.first, it.second) }
                 .filter { it !in explored }
