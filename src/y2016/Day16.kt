@@ -1,33 +1,44 @@
 package y2016
 
-import util.readInput
-
 object Day16 {
-    private fun parse(input: List<String>): Any {
-        TODO()
+    fun part1(init: String, space: Int): String {
+        var data = init
+        while (data.length < space) {
+            data = generateNext(data)
+        }
+        return checkSum(data.take(space))
     }
 
-    fun part1(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+    private fun generateNext(data: String): String {
+        val tail = data.reversed().replace('0', 'a').replace('1', 'b').replace('a', '1').replace('b', '0')
+        return data + "0" + tail
     }
 
-    fun part2(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+    private fun checkSum(str: String): String {
+        val checks = str.chunked(2).joinToString("") {
+            if (it[0] == it[1]) {
+                "1"
+            } else {
+                "0"
+            }
+        }
+        if (checks.length % 2 == 0) {
+            return checkSum(checks)
+        }
+        return checks
     }
 }
 
 fun main() {
-    val testInput = """
-
-    """.trimIndent().split("\n")
+    val testInput = "10000"
+    val testDiskSpace = 20
     println("------Tests------")
-    println(Day16.part1(testInput))
-    println(Day16.part2(testInput))
+    println(Day16.part1(testInput, testDiskSpace))
 
     println("------Real------")
-    val input = readInput("resources/2016/day16")
-    println(Day16.part1(input))
-    println(Day16.part2(input))
+    val input = "00101000101111010"
+    val diskSpace = 272
+    println(Day16.part1(input, diskSpace))
+    val diskSpace2 = 35_651_584
+    println(Day16.part1(input, diskSpace2))
 }
