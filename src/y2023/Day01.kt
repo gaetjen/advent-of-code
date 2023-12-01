@@ -24,15 +24,11 @@ val digitStrings = mapOf(
     "0" to 0
 )
 
-val reverses = digitStrings.mapKeys { it.key.reversed() }
-
 val re = Regex(
     digitStrings.keys.joinToString(separator = "|")
 )
 
-val reReverse = Regex(
-    reverses.keys.joinToString(separator = "|")
-)
+val nonConsumingRe = Regex("(?=${re.pattern})")
 
 object Day01 {
     private fun parse(input: List<String>): List<Int> {
@@ -49,9 +45,10 @@ object Day01 {
 
     private fun parse2(input: List<String>): List<Int> {
         return input.map { line ->
-            val matchFirst = re.find(line)
-            val matchLast = reReverse.find(line.reversed())
-            digitStrings[matchFirst?.value]!! * 10 + reverses[matchLast?.value]!!
+            val matches = nonConsumingRe.findAll(line)
+            val first = re.find(line, matches.first().range.first)
+            val last = re.find(line, matches.last().range.first)
+            digitStrings[first?.value]!! * 10 + digitStrings[last?.value]!!
         }
     }
 
