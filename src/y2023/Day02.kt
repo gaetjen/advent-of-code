@@ -6,8 +6,8 @@ import util.readInput
 object Day02 {
     private fun parse(input: List<String>): List<List<Map<String, Int>>> {
         return input.map { line ->
-            line.dropWhile { it != ':' }.drop(1).split("; ").map { game ->
-                game.trim().split(", ").associate { colorCount ->
+            line.substringAfter(": ").split("; ").map { game ->
+                game.split(", ").associate { colorCount ->
                     val (count, color) = colorCount.split(" ")
                     color to count.toInt()
                 }
@@ -20,8 +20,7 @@ object Day02 {
         val maxGameResults = games.map { game ->
             target.keys.associateWith { color -> game.maxOf { it[color] ?: 0 } }
         }
-        println(maxGameResults)
-        val bla = maxGameResults
+        return maxGameResults
             .mapIndexedNotNull { index, maxes ->
                 if (target.all { (color, count) ->
                         (maxes[color] ?: 0) <= count
@@ -30,20 +29,19 @@ object Day02 {
                 } else {
                     null
                 }
-            }
-        return bla.sum()
+            }.sum()
     }
 
-    val colors = listOf("red", "green", "blue")
+    private val colors = listOf("red", "green", "blue")
 
     fun part2(input: List<String>): Int {
         val games = parse(input)
         val maxGameResults = games.map { game ->
             colors.associateWith { color -> game.maxOf { it[color] ?: 0 } }
         }
-        return maxGameResults.map { maxes ->
+        return maxGameResults.sumOf { maxes ->
             maxes.values.product()
-        }.sum()
+        }
     }
 }
 
