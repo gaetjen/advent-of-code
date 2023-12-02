@@ -3,7 +3,7 @@ package y2016
 import util.readInput
 
 data class MachineState(
-    val instructions: List<Instruction>,
+    val instructions: MutableList<Instruction>,
     var instructionIdx: Int = 0,
     val registers: MutableMap<Char, Int> = mutableMapOf('a' to 0, 'b' to 0, 'c' to 0, 'd' to 0)
 ) {
@@ -81,7 +81,7 @@ object Day12 {
     private fun parse(input: List<String>): MachineState {
         val instructions = input.map {
             Instruction.parse(it)
-        }
+        }.toMutableList()
         return MachineState(instructions)
     }
 
