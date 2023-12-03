@@ -44,13 +44,15 @@ object Day03 {
 
     fun part2(input: List<String>): Int {
         val numbers = numbers(input)
+        val numberLookup = numbers.flatMap {(poss, num) ->
+            poss.map { it to (poss to num) }
+        }.toMap()
+
         val gearCandidates = gearCandidates(input)
         return gearCandidates.map {
             it.neighbors()
         }.sumOf { gearNeighbors ->
-            val numberNeighbors = numbers.filter { (poss, _) ->
-                poss.any { it in gearNeighbors }
-            }
+            val numberNeighbors = gearNeighbors.mapNotNull { numberLookup[it] }.distinct()
             if (numberNeighbors.size == 2) {
                 numberNeighbors[0].second * numberNeighbors[1].second
             } else {
