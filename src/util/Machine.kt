@@ -15,7 +15,7 @@ abstract class AbstractMachine<S> {
         return state
     }
 
-    private fun step() {
+    fun step() {
         val stepResult = instructions[instructionIdx].executeOn(state, instructionIdx)
         state = stepResult.first
         instructionIdx = stepResult.second

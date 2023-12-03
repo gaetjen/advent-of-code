@@ -6,7 +6,8 @@ import util.readInput
 
 data class CrackingState(
     val instructions: MutableList<CrackingInstruction>,
-    val registers: MutableMap<Char, Int> = mutableMapOf('a' to 7, 'b' to 0, 'c' to 0, 'd' to 0)
+    val registers: MutableMap<Char, Int> = mutableMapOf('a' to 7, 'b' to 0, 'c' to 0, 'd' to 0),
+    var output: String = ""
 )
 
 class CrackingMachine(
@@ -24,6 +25,7 @@ sealed class CrackingInstruction : AbstractInstruction<CrackingState>() {
                 "dec" -> Dec(els[1])
                 "jnz" -> Jnz(els[1], els[2])
                 "tgl" -> Toggle(els[1])
+                "out" -> Out(els[1])
                 else -> error("invalid instruction")
             }
         }
@@ -97,13 +99,24 @@ sealed class CrackingInstruction : AbstractInstruction<CrackingState>() {
                 is Inc -> Dec(instruction.register)
                 is Jnz -> Copy(instruction.register, instruction.offset)
                 is Toggle -> Inc(instruction.offset)
+                is Out -> Inc(instruction.arg)
             }
+        }
+    }
+
+    data class Out(
+        val arg: String
+    ) : CrackingInstruction() {
+        override fun executeOn(state: CrackingState, idx: Int): Pair<CrackingState, Int> {
+            val value = arg.toIntOrNull() ?: state.registers[arg.first()]!!
+            state.output += value
+            return state to idx + 1
         }
     }
 }
 
 object Day23 {
-    private fun parse(input: List<String>): MutableList<CrackingInstruction> {
+    fun parse(input: List<String>): MutableList<CrackingInstruction> {
         return input.map {
             CrackingInstruction.parse(it)
         }.toMutableList()
