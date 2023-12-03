@@ -8,6 +8,7 @@ import util.Cardinal.WEST
 import util.Cardinal.entries
 import util.Pos
 import util.minMax
+import util.neighbors
 import util.readInput
 import java.util.Collections
 
@@ -28,10 +29,6 @@ object Day23 {
             yield(dirs.toList())
             Collections.rotate(dirs, -1)
         }
-    }
-
-    fun Pos.neighbors(): List<Pos> {
-        return entries.map { it.of(this) } + Cardinal.diagonals.map { (one, two) -> one.of(two.of(this)) }
     }
 
     fun Pos.neighborsIn(d: Cardinal): List<Pos> {

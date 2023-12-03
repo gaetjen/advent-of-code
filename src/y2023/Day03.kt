@@ -1,8 +1,8 @@
 package y2023
 
 import util.Pos
+import util.neighbors
 import util.readInput
-import y2022.Day23.neighbors
 
 object Day03 {
     private fun numbers(input: List<String>): List<Pair<Set<Pos>, Int>> {
@@ -17,8 +17,7 @@ object Day03 {
 
     private fun symbols(input: List<String>): List<Pos> {
         return input.flatMapIndexed { row: Int, line: String ->
-            val newline = line.replace(".", "a")
-            val symbols = Regex("[^a\\d]").findAll(newline)
+            val symbols = Regex("[^\\.\\d]").findAll(line)
             symbols.map {
                 row to it.range.first
             }
@@ -31,13 +30,12 @@ object Day03 {
         val neighbors = symbols.flatMap {
             it.neighbors()
         }.toSet()
-        val neighborNumbers = numbers.filter {( poss, n) ->
+        return numbers.filter { (poss, _) ->
             poss.any { it in neighbors }
-        }
-        return neighborNumbers.sumOf { it.second.toLong() }
+        }.sumOf { it.second.toLong() }
     }
 
-    fun gearCandidates(input: List<String>): List<Pos> {
+    private fun gearCandidates(input: List<String>): List<Pos> {
         return input.flatMapIndexed { row: Int, line: String ->
             val gears = Regex("\\*").findAll(line)
             gears.map {

@@ -11,6 +11,14 @@ operator fun Pos.plus(b: Pos) = this.first + b.first to this.second + b.second
 operator fun Pos.times(b: Int) = this.first * b to this.second * b
 fun Pos.inverse() = this.second to this.first
 
+fun Pos.neighbors(): List<Pos> {
+    return Cardinal.entries.map { it.of(this) } + Cardinal.diagonals.map { (one, two) -> one.of(two.of(this)) }
+}
+
+fun Pos.neighborsManhattan(): List<Pos> {
+    return Cardinal.entries.map { it.of(this) }
+}
+
 fun <T> transpose(matrix: List<List<T>>): List<List<T>> {
     return List(matrix.first().size) { rowIdx ->
         List(matrix.size) { colIdx ->

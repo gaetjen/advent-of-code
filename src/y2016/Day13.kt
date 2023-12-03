@@ -1,7 +1,7 @@
 package y2016
 
-import util.Cardinal
 import util.Pos
+import util.neighborsManhattan
 import util.printMatrix
 
 object Day13 {
@@ -9,10 +9,6 @@ object Day13 {
         val n = x * x + 3 * x + 2 * x * y + y + y * y + favorite
         val binary = n.toString(2)
         return binary.count { it == '1' } % 2 == 1
-    }
-
-    fun Pos.neighborsManhattan(): List<Pos> {
-        return Cardinal.entries.map { it.of(this) }
     }
 
     fun part1(favorite: Int, target: Pos): Int {
