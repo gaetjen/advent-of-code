@@ -80,3 +80,7 @@ fun Iterable<Long>.product(): Long {
     }
     return product
 }
+
+fun <T> List<T>.indexOfAll(predicate: (T) -> Boolean): List<Int> {
+    return this.mapIndexedNotNull { index, t -> if (predicate(t)) index else null }
+}

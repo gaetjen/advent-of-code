@@ -1,6 +1,7 @@
 package y2023
 
 import util.Pos
+import util.indexOfAll
 import util.neighbors
 import util.readInput
 
@@ -17,10 +18,8 @@ object Day03 {
 
     private fun symbols(input: List<String>): List<Pos> {
         return input.flatMapIndexed { row: Int, line: String ->
-            val symbols = Regex("[^\\.\\d]").findAll(line)
-            symbols.map {
-                row to it.range.first
-            }
+            val symbolPositions = line.toList().indexOfAll { it != '.' && !it.isDigit() }
+            symbolPositions.map { row to it }
         }
     }
 
@@ -37,10 +36,8 @@ object Day03 {
 
     private fun gearCandidates(input: List<String>): List<Pos> {
         return input.flatMapIndexed { row: Int, line: String ->
-            val gears = Regex("\\*").findAll(line)
-            gears.map {
-                row to it.range.first
-            }
+            val gearPositions = line.toList().indexOfAll { it == '*' }
+            gearPositions.map { row to it }
         }
     }
 
