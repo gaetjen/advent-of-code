@@ -2,6 +2,7 @@ package y2023
 
 import util.Pos
 import util.indexOfAll
+import util.measuredTime
 import util.neighbors
 import util.readInput
 
@@ -78,6 +79,6 @@ fun main() {
 
     println("------Real------")
     val input = readInput("resources/2023/day03")
-    println(Day03.part1(input))
-    println(Day03.part2(input))
+    measuredTime { Day03.part1(input) }
+    measuredTime { Day03.part2(input) }
 }

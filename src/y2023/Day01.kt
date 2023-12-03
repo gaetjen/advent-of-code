@@ -1,5 +1,6 @@
 package y2023
 
+import util.measuredTime
 import util.readInput
 
 val digitStrings = mapOf(
@@ -84,6 +85,6 @@ fun main() {
 
     println("------Real------")
     val input = readInput("resources/2023/day01")
-    println(Day01.part1(input))
-    println(Day01.part2(input))
+    measuredTime { Day01.part1(input) }
+    measuredTime { Day01.part2(input) }
 }
