@@ -1,5 +1,6 @@
 package y2023
 
+import util.measuredTime
 import util.readInput
 
 object Day09 {
@@ -20,7 +21,6 @@ object Day09 {
 
 fun main() {
     val testInput = """
-
     """.trimIndent().split("\n")
     println("------Tests------")
     println(Day09.part1(testInput))
@@ -28,6 +28,6 @@ fun main() {
 
     println("------Real------")
     val input = readInput("resources/2023/day09")
-    println(Day09.part1(input))
-    println(Day09.part2(input))
+    measuredTime { Day09.part1(input) }
+    measuredTime { Day09.part2(input) }
 }
