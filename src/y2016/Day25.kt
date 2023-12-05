@@ -1,7 +1,7 @@
 package y2016
 
-import util.measuredTime
 import util.readInput
+import util.timingStatistics
 
 object Day25 {
     fun part1(input: List<String>): Int {
@@ -41,5 +41,6 @@ object Day25 {
 fun main() {
     println("------Real------")
     val input = readInput("resources/2016/day25")
-    measuredTime { Day25.part1(input) }
+    println("Part 1 result: ${Day25.part1(input)}")
+    timingStatistics(maxRuns = 1) { Day25.part1(input) }
 }

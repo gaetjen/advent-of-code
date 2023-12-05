@@ -1,8 +1,8 @@
 package y2023
 
-import util.measuredTime
 import util.product
 import util.readInput
+import util.timingStatistics
 
 object Day02 {
     private fun parse(input: List<String>): List<List<Map<String, Int>>> {
@@ -61,6 +61,8 @@ fun main() {
 
     println("------Real------")
     val input = readInput("resources/2023/day02")
-    measuredTime { Day02.part1(input, target) }
-    measuredTime { Day02.part2(input) }
+    println("Part 1 result: ${Day02.part1(input, target)}")
+    println("Part 2 result: ${Day02.part2(input)}")
+    timingStatistics { Day02.part1(input, target) }
+    timingStatistics { Day02.part2(input) }
 }

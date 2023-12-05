@@ -1,9 +1,9 @@
 package y2016
 
 import util.Pos
-import util.measuredTime
 import util.neighborsManhattan
 import util.readInput
+import util.timingStatistics
 
 object Day24 {
     data class Ducts(
@@ -134,6 +134,8 @@ fun main() {
 
     println("------Real------")
     val input = readInput("resources/2016/day24")
-    measuredTime { Day24.part1(input) }
-    measuredTime { Day24.part2(input) }
+    println("Part 1 result: ${Day24.part1(input)}")
+    println("Part 2 result: ${Day24.part2(input)}")
+    timingStatistics { Day24.part1(input) }
+    timingStatistics { Day24.part2(input) }
 }

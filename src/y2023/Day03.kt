@@ -2,9 +2,9 @@ package y2023
 
 import util.Pos
 import util.indexOfAll
-import util.measuredTime
 import util.neighbors
 import util.readInput
+import util.timingStatistics
 
 object Day03 {
     private fun numbers(input: List<String>): List<Pair<Set<Pos>, Int>> {
@@ -81,6 +81,8 @@ fun main() {
 
     println("------Real------")
     val input = readInput("resources/2023/day03")
-    measuredTime { Day03.part1(input) }
-    measuredTime { Day03.part2(input) }
+    println("Part 1 result: ${Day03.part1(input)}")
+    println("Part 2 result: ${Day03.part2(input)}")
+    timingStatistics { Day03.part1(input) }
+    timingStatistics { Day03.part2(input) }
 }

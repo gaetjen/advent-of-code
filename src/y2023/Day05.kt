@@ -1,8 +1,8 @@
 package y2023
 
-import util.measuredTime
 import util.readInput
 import util.split
+import util.timingStatistics
 
 object Day05 {
     data class MyMap(val destinationStart: Long, val sourceRange: LongRange) {
@@ -151,7 +151,9 @@ fun main() {
 
     println("------Real------")
     val input = readInput(2023, 5)
-    measuredTime { Day05.part1(input) }
-    measuredTime { Day05.part2(input) }
-    measuredTime { Day05.part2Naive(input) }
+    println("Part 1 result: ${Day05.part1(input)}")
+    println("Part 2 result: ${Day05.part2(input)}")
+    timingStatistics { Day05.part1(input) }
+    timingStatistics { Day05.part2(input) }
+    timingStatistics { Day05.part2Naive(input) }
 }

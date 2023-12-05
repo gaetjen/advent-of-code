@@ -1,9 +1,9 @@
 package y$year
 
-import util.measuredTime
+import util.timingStatistics
 import util.readInput
 
-object Day$day {
+object Day$dayPadded {
     private fun parse(input: List<String>): Any {
         TODO()
     }
@@ -23,11 +23,13 @@ fun main() {
     val testInput = """
     """.trimIndent().split("\n")
     println("------Tests------")
-    println(Day$day.part1(testInput))
-    println(Day$day.part2(testInput))
+    println(Day$dayPadded.part1(testInput))
+    println(Day$dayPadded.part2(testInput))
 
     println("------Real------")
-    val input = readInput("resources/$year/day$day")
-    measuredTime { Day$day.part1(input) }
-    measuredTime { Day$day.part2(input) }
+    val input = readInput($year, $day)
+    println("Part 1 result: ${Day$dayPadded.part1(input)}")
+    println("Part 2 result: ${Day$dayPadded.part2(input)}")
+    timingStatistics { Day$dayPadded.part1(input) }
+    timingStatistics { Day$dayPadded.part2(input) }
 }

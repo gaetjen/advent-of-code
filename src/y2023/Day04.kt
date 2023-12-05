@@ -1,7 +1,7 @@
 package y2023
 
-import util.measuredTime
 import util.readInput
+import util.timingStatistics
 import kotlin.math.pow
 
 object Day04 {
@@ -49,6 +49,8 @@ fun main() {
 
     println("------Real------")
     val input = readInput("resources/2023/day04")
-    measuredTime { Day04.part1(input) }
-    measuredTime { Day04.part2(input) }
+    println("Part 1 result: ${Day04.part1(input)}")
+    println("Part 2 result: ${Day04.part2(input)}")
+    timingStatistics { Day04.part1(input) }
+    timingStatistics { Day04.part2(input) }
 }

@@ -12,7 +12,8 @@ fun main() {
         f.writeText(
             template.joinToString(separator = "\n") {
                 it.replace("\$year", year.toString())
-                    .replace("\$day", dayString)
+                    .replace("\$dayPadded", dayString)
+                    .replace("\$day", day.toString())
             }
         )
     }
