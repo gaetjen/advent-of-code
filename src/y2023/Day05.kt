@@ -5,7 +5,11 @@ import util.readInput
 import util.split
 
 object Day05 {
-    data class MyMap(val destinationStart: Long, val sourceRange: LongRange)
+    data class MyMap(val destinationStart: Long, val sourceRange: LongRange) {
+        fun destinationFor(source: Long): Long {
+            return destinationStart + (source - sourceRange.first)
+        }
+    }
 
     private fun parse(input: List<String>): Pair<List<Long>, List<List<MyMap>>> {
         val parts = input.split { it.isEmpty() }
@@ -27,11 +31,7 @@ object Day05 {
         val locations = seeds.map { seed ->
             maps.fold(seed) { currentNumber, map ->
                 val match = map.find { currentNumber in it.sourceRange }
-                if (match != null) {
-                    match.destinationStart + (currentNumber - match.sourceRange.first)
-                } else {
-                    currentNumber
-                }
+                match?.destinationFor(currentNumber) ?: currentNumber
             }
         }
         return locations.min()
@@ -50,14 +50,14 @@ object Day05 {
                     .takeWhile { it.sourceRange.first <= range.last }
                 overlapping.mapIndexed { index, myMap ->
                     val start = if (index == 0) {
-                        myMap.destinationStart + (range.first - myMap.sourceRange.first)
+                        myMap.destinationFor(range.first)
                     } else {
-                        myMap.destinationStart
+                        myMap.destinationFor(myMap.sourceRange.first)
                     }
                     val end = if (index == overlapping.size - 1) {
-                        myMap.destinationStart + (range.last - myMap.sourceRange.first)
+                        myMap.destinationFor(range.last)
                     } else {
-                        myMap.destinationStart + (myMap.sourceRange.last - myMap.sourceRange.first)
+                        myMap.destinationFor(myMap.sourceRange.last)
                     }
                     start..end
                 }
