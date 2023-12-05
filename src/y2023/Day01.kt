@@ -25,8 +25,14 @@ val digitStrings = mapOf(
     "0" to 0
 )
 
+val reverses = digitStrings.mapKeys { it.key.reversed() }
+
 val re = Regex(
     digitStrings.keys.joinToString(separator = "|")
+)
+
+val reReverse = Regex(
+    reverses.keys.joinToString(separator = "|")
 )
 
 val nonConsumingRe = Regex("(?=${re.pattern})")
@@ -56,6 +62,19 @@ object Day01 {
     fun part2(input: List<String>): Int {
         val parsed = parse2(input)
         return parsed.sum()
+    }
+
+    fun part2Faster(input: List<String>): Int {
+        val parsed = parseReverse(input)
+        return parsed.sum()
+    }
+
+    private fun parseReverse(input: List<String>): List<Int> {
+        return input.map { line ->
+            val matchFirst = re.find(line)
+            val matchLast = reReverse.find(line.reversed())
+            digitStrings[matchFirst?.value]!! * 10 + reverses[matchLast?.value]!!
+        }
     }
 }
 
@@ -89,4 +108,5 @@ fun main() {
     println("Part 2 result: ${Day01.part2(input)}")
     timingStatistics { Day01.part1(input) }
     timingStatistics { Day01.part2(input) }
+    timingStatistics { Day01.part2Faster(input) }
 }
