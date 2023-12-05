@@ -24,7 +24,7 @@ fun timingStatistics(
             val average = totalDuration.times(1.0 / durations.size)
             val standardDeviation = sqrt(durations.sumOf { (it - average).inWholeMicroseconds.toDouble().pow(2) } / durations.size).microseconds
             println(
-                "\u001b[36mRuntime: $average, σ: $standardDeviation (${durations.size} runs)\u001b[0m"
+                "\u001b[36mRuntime: $average, σ: $standardDeviation (${durations.size} runs)\u001b[0m".replace("us", "µs")
             )
         }
     } catch (e: Exception) {
