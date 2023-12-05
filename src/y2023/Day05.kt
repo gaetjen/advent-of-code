@@ -150,7 +150,7 @@ fun main() {
     println(Day05.part2(testInput))
 
     println("------Real------")
-    val input = readInput("resources/2023/day05")
+    val input = readInput(2023, 5)
     measuredTime { Day05.part1(input) }
     measuredTime { Day05.part2(input) }
     measuredTime { Day05.part2Naive(input) }
