@@ -66,6 +66,20 @@ object Day05 {
         return locationRanges.minOf { it.first }
     }
 
+    fun part2Naive(input: List<String>): Long {
+        val (seeds, maps) = parse(input)
+        val seedRanges = seeds.chunked(2).map { it[0] until it[0] + it[1] }
+        return seedRanges.minOf { range ->
+            println("evaluating range $range -> ${range.last - range.first + 1} seeds")
+            range.minOf { seed ->
+                maps.fold(seed) { currentNumber, map ->
+                    val match = map.find { currentNumber in it.sourceRange }
+                    match?.destinationFor(currentNumber) ?: currentNumber
+                }
+            }
+        }
+    }
+
     private fun getAllCoveringMap(exampleMap: List<MyMap>): List<MyMap> {
         val sorted = exampleMap.sortedBy { it.sourceRange.first }
         val basicCovers = sorted.windowed(2)
@@ -139,4 +153,5 @@ fun main() {
     val input = readInput("resources/2023/day05")
     measuredTime { Day05.part1(input) }
     measuredTime { Day05.part2(input) }
+    measuredTime { Day05.part2Naive(input) }
 }
