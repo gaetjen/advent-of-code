@@ -155,5 +155,5 @@ fun main() {
     println("Part 2 result: ${Day05.part2(input)}")
     timingStatistics { Day05.part1(input) }
     timingStatistics { Day05.part2(input) }
-    timingStatistics { Day05.part2Naive(input) }
+    timingStatistics(maxRuns = 1) { Day05.part2Naive(input) }
 }
