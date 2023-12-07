@@ -110,3 +110,14 @@ fun main() {
     timingStatistics { Day01.part2(input) }
     timingStatistics { Day01.part2Faster(input) }
 }
+
+val regexString = "one|two|three|four|five|six|seven|eight|nine|" + (1..9).joinToString("|")
+val digits = regexString.split("|")
+val regex = Regex(regexString)
+fun codeGolfPart2() = println(
+    generateSequence(::readLine).map {
+        digits.indexOf(
+            regex.find(it)?.value
+        ) % 9 * 10 + digits.indexOf(Regex(regex.pattern.reversed()).find(it.reversed())?.value?.reversed()) % 9
+    }.sum() + 11000
+)
