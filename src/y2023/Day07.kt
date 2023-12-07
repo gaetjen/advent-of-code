@@ -30,7 +30,7 @@ object Day07 {
         return input.mapIndexed { idx, line ->
             val (cards, bid) = line.split(" ")
             val parsedCards = cards.map {
-                if (it in faces.keys) faces[it]!! else it.toString().toInt()
+                faces[it] ?: it.digitToInt()
             }
             Hand(parsedCards, bid.toInt(), idx)
         }
@@ -87,10 +87,10 @@ object Day07 {
         if (setSizeDiff != 0) return@Comparator setSizeDiff
 
         if (maxSetSizeA in listOf(2, 3)) {
-            val secondsSetA = noJokersA.values.sortedDescending()[1]
-            val secondsSetB = noJokersB.values.sortedDescending()[1]
-            val secondsSetDiff = secondsSetA - secondsSetB
-            if (secondsSetDiff != 0) return@Comparator secondsSetDiff
+            val secondSetA = noJokersA.values.sortedDescending()[1]
+            val secondSetB = noJokersB.values.sortedDescending()[1]
+            val secondSetDiff = secondSetA - secondSetB
+            if (secondSetDiff != 0) return@Comparator secondSetDiff
         }
         a.cards.zip(b.cards).forEach { (aCard, bCard) ->
             if (aCard != bCard) {
