@@ -38,20 +38,17 @@ object Day07 {
         }
     }
 
-    private val strengthComparator: Comparator<Hand> = Comparator { a, b ->
-        a.setSizes.zip(b.setSizes).take(2).forEach { (aSize, bSize) ->
-            if (aSize != bSize) {
-                return@Comparator aSize.compareTo(bSize)
-            }
-        }
-        a.cards.zip(b.cards).forEach { (aCard, bCard) ->
-            if (aCard != bCard) {
-                return@Comparator aCard.compareTo(bCard)
-            }
-        }
-
-        return@Comparator 0
+    private val maxSizeSelectors = List(2) { idx ->
+        { hand: Hand -> hand.setSizes[idx] }
     }
+
+    private val cardSelectors = List(5) { idx ->
+        { hand: Hand -> hand.cards[idx] }
+    }
+
+    private val strengthComparator: Comparator<Hand> = compareBy(
+        *(maxSizeSelectors + cardSelectors).toTypedArray()
+    )
 
     private fun setSizes(cards: List<Int>): List<Int> {
         val sets = (2..14).map { c ->
