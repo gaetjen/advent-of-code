@@ -23,7 +23,8 @@ object Day07 {
     data class Hand(
         val cards: List<Int>,
         val bid: Int,
-        val position: Int
+        val position: Int,
+        val setSizes: List<Int>
     )
 
     private fun parse(input: List<String>, faces: Map<Char, Int> = nonNumbers): List<Hand> {
@@ -32,24 +33,17 @@ object Day07 {
             val parsedCards = cards.map {
                 faces[it] ?: it.digitToInt()
             }
-            Hand(parsedCards, bid.toInt(), idx)
+            val sets = setSizes(parsedCards)
+            Hand(parsedCards, bid.toInt(), idx, sets)
         }
     }
 
     private val strengthComparator: Comparator<Hand> = Comparator { a, b ->
-        val aSets = counts(a.cards)
-        val bSets = counts(b.cards)
-
-        val distinctA = a.cards.distinct().size
-        val distinctB = b.cards.distinct().size
-        val distinctDiff = distinctB - distinctA
-        if (distinctDiff != 0) return@Comparator distinctDiff
-
-        val maxSetSizeA = aSets.values.max()
-        val maxSetSizeB = bSets.values.max()
-        val setSizeDiff = maxSetSizeA - maxSetSizeB
-        if (setSizeDiff != 0) return@Comparator setSizeDiff
-
+        a.setSizes.zip(b.setSizes).take(2).forEach { (aSize, bSize) ->
+            if (aSize != bSize) {
+                return@Comparator aSize.compareTo(bSize)
+            }
+        }
         a.cards.zip(b.cards).forEach { (aCard, bCard) ->
             if (aCard != bCard) {
                 return@Comparator aCard.compareTo(bCard)
@@ -59,12 +53,12 @@ object Day07 {
         return@Comparator 0
     }
 
-    private fun counts(cards: List<Int>): Map<Int, Int> {
-        val counts = mutableMapOf<Int, Int>()
-        for (card in cards) {
-            counts[card] = counts.getOrDefault(card, 0) + 1
-        }
-        return counts
+    private fun setSizes(cards: List<Int>): List<Int> {
+        val sets = (2..14).map { c ->
+            cards.count { it == c }
+        }.sortedDescending().toMutableList()
+        sets[0] += cards.count { it == 1 }
+        return sets
     }
 
     fun part1(input: List<String>): Int {
@@ -74,35 +68,8 @@ object Day07 {
         }.sum()
     }
 
-    private val strengthComparator2: Comparator<Hand> = Comparator { a, b ->
-        val aSets = counts(a.cards)
-        val bSets = counts(b.cards)
-
-        val noJokersA = aSets.filterKeys { it != 1 }
-        val noJokersB = bSets.filterKeys { it != 1 }
-
-        val maxSetSizeA = (noJokersA.values.maxOrNull() ?: 0) + (aSets[1] ?: 0)
-        val maxSetSizeB = (noJokersB.values.maxOrNull() ?: 0) + (bSets[1] ?: 0)
-        val setSizeDiff = maxSetSizeA - maxSetSizeB
-        if (setSizeDiff != 0) return@Comparator setSizeDiff
-
-        if (maxSetSizeA in listOf(2, 3)) {
-            val secondSetA = noJokersA.values.sortedDescending()[1]
-            val secondSetB = noJokersB.values.sortedDescending()[1]
-            val secondSetDiff = secondSetA - secondSetB
-            if (secondSetDiff != 0) return@Comparator secondSetDiff
-        }
-        a.cards.zip(b.cards).forEach { (aCard, bCard) ->
-            if (aCard != bCard) {
-                return@Comparator aCard.compareTo(bCard)
-            }
-        }
-
-        return@Comparator 0
-    }
-
     fun part2(input: List<String>): Int {
-        val hands = parse(input, nonNumbers2).sortedWith(strengthComparator2)
+        val hands = parse(input, nonNumbers2).sortedWith(strengthComparator)
         return hands.mapIndexed { idx, hand ->
             hand.bid * (idx + 1)
         }.sum()
