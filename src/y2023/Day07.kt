@@ -27,7 +27,7 @@ object Day07 {
         val setSizes: List<Int>
     )
 
-    private fun parse(input: List<String>, faces: Map<Char, Int> = nonNumbers): List<Hand> {
+    private fun parse(input: List<String>, faces: Map<Char, Int>): List<Hand> {
         return input.mapIndexed { idx, line ->
             val (cards, bid) = line.split(" ")
             val parsedCards = cards.map {
@@ -62,14 +62,15 @@ object Day07 {
     }
 
     fun part1(input: List<String>): Int {
-        val hands = parse(input).sortedWith(strengthComparator)
-        return hands.mapIndexed { idx, hand ->
-            hand.bid * (idx + 1)
-        }.sum()
+        return totalWinnings(input)
     }
 
     fun part2(input: List<String>): Int {
-        val hands = parse(input, nonNumbers2).sortedWith(strengthComparator)
+        return totalWinnings(input, nonNumbers2)
+    }
+
+    private fun totalWinnings(input: List<String>, faces: Map<Char, Int> = nonNumbers): Int {
+        val hands = parse(input, faces).sortedWith(strengthComparator)
         return hands.mapIndexed { idx, hand ->
             hand.bid * (idx + 1)
         }.sum()
