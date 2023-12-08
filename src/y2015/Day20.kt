@@ -1,11 +1,10 @@
 package y2015
 
-import util.readInput
 import kotlin.math.ceil
 import kotlin.math.sqrt
 
 object Day20 {
-    private fun factors(n: Int): List<Int> {
+    fun factors(n: Int): List<Int> {
         return (1..ceil(sqrt(n.toDouble())).toInt()).mapNotNull {
             if (n % it == 0) listOf(it, n / it) else null
         }.flatten()
