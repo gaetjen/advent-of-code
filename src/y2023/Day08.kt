@@ -7,9 +7,14 @@ import y2015.Day20
 import y2022.Day15.toPair
 
 object Day08 {
-    private fun parse(input: List<String>): Pair<String, Map<String, Pair<String, String>>> {
-        val leftRight = input.first()
-
+    private fun parse(input: List<String>): Pair<List<(Pair<String, String>) -> String>, Map<String, Pair<String, String>>> {
+        val leftRight: List<(Pair<String, String>) -> String> = input.first().map {
+            if (it == 'L') {
+                { pair: Pair<String, String> -> pair.first }
+            } else {
+                { pair: Pair<String, String> -> pair.second }
+            }
+        }
         val map = input.drop(2).map { line ->
             val (left, right) = line.split(" = ")
             left to right.replace("(", "").replace(")", "").split(", ").toPair()
@@ -22,12 +27,7 @@ object Day08 {
         var steps = 0
         var current = "AAA"
         while (current != "ZZZ") {
-            current = if (moves[steps % moves.length] == 'L') {
-                map[current]!!.first
-            } else {
-                map[current]!!.second
-
-            }
+            current = moves[steps % moves.size](map[current]!!)
             steps++
         }
         return steps
@@ -40,11 +40,7 @@ object Day08 {
         var currents = starts
         while (currents.any { !it.endsWith('Z') }) {
             currents = currents.map {
-                if (moves[(steps % moves.length).toInt()] == 'L') {
-                    map[it]!!.first
-                } else {
-                    map[it]!!.second
-                }
+                moves[(steps % moves.size).toInt()](map[it]!!)
             }
             steps++
         }
@@ -63,27 +59,23 @@ object Day08 {
         return lcm
     }
 
-    fun getCycle(moves: String, map: Map<String, Pair<String, String>>, start: String): MutableList<CycleStep> {
+    fun getCycle(moves: List<(Pair<String, String>) -> String>, map: Map<String, Pair<String, String>>, start: String): MutableList<CycleStep> {
         var steps = 0L
         var current = start
         val cycle = mutableListOf<CycleStep>()
         while (true) {
-            current = if (moves[(steps % moves.length).toInt()] == 'L') {
-                map[current]!!.first
-            } else {
-                map[current]!!.second
-            }
+            current = moves[(steps % moves.size).toInt()](map[current]!!)
             if (current.endsWith('Z')) {
                 cycle.add(
                     CycleStep(
-                        steps,
-                        steps - (cycle.lastOrNull()?.totalSteps ?: 0),
-                        steps % moves.length,
+                        steps + 1,
+                        steps + 1 - (cycle.lastOrNull()?.totalSteps ?: 0),
+                        (steps + 1) % moves.size,
                         current
                     )
                 )
             }
-            if (cycle.distinctBy { "${it.instructionPosition} ${it.position}" }.size < cycle.size) {
+            if (cycle.distinctBy { it.instructionPosition to it.position }.size < cycle.size) {
                 break
             }
             steps++
