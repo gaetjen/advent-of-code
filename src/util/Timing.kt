@@ -23,12 +23,19 @@ fun timingStatistics(
             }
         }.let { durations ->
             val average = totalDuration.times(1.0 / durations.size)
-            val standardDeviation = sqrt(durations.sumOf { (it - average).inWholeNanoseconds.toDouble().pow(2) } / durations.size).nanoseconds
+            val standardDeviation =
+                sqrt(durations.sumOf { (it - average).inWholeNanoseconds.toDouble().pow(2) } / durations.size).nanoseconds
             println(
-                "\u001b[36mRuntime: $average, σ: $standardDeviation (${durations.size} runs)\u001b[0m".replace("us", "µs")
+                "\u001b[36mRuntime: ${average.toStringWithDecimals()}, σ: ${standardDeviation.toStringWithDecimals()} (${durations.size} runs)\u001b[0m"
             )
         }
     } catch (e: Exception) {
         println("Error while timing: ${e.javaClass.simpleName} ${e.message}")
     }
+}
+
+fun Duration.toStringWithDecimals(decimals: Int = 2): String {
+    return this.toString().replace("\\.\\d+".toRegex()) { result ->
+        result.value.take(decimals + 1)
+    }.replace("us", "µs")
 }
