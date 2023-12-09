@@ -19,7 +19,7 @@ object Day09 {
         return lst.zipWithNext { a, b -> b - a }
     }
 
-    fun allGradients(lst: List<Long>): List<List<Long>> {
+    private fun allGradients(lst: List<Long>): List<List<Long>> {
         return buildList {
             add(lst)
             while (!last().all { it == 0L }) {
@@ -28,7 +28,7 @@ object Day09 {
         }
     }
 
-    fun extrapolated(lst: List<Long>): Long {
+    private fun extrapolated(lst: List<Long>): Long {
         return allGradients(lst).sumOf { it.last() }
     }
 
@@ -37,8 +37,8 @@ object Day09 {
         return parsed.sumOf { line ->
             allGradients(line).map {
                 it.first()
-            }.reversed().reduce { acc, b ->
-                b - acc
+            }.reduceRight { previous, acc ->
+                previous - acc
             }
         }
     }
