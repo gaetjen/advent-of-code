@@ -3,8 +3,10 @@ package y2023
 import util.Cardinal
 import util.Pos
 import util.neighborsManhattan
+import util.plus
 import util.printGrid
 import util.readInput
+import util.timingStatistics
 
 object Day10 {
     val WHITE_BACKGROUND = "\u001b[47m"
@@ -23,47 +25,16 @@ object Day10 {
 
     val neighborLookup = mapOf(
         'L' to listOf(Cardinal.NORTH, Cardinal.EAST),
-        '-' to listOf(Cardinal.WEST, Cardinal.EAST),
+        '-' to listOf(Cardinal.EAST, Cardinal.WEST),
         'J' to listOf(Cardinal.NORTH, Cardinal.WEST),
         '|' to listOf(Cardinal.NORTH, Cardinal.SOUTH),
         'F' to listOf(Cardinal.SOUTH, Cardinal.EAST),
         '7' to listOf(Cardinal.SOUTH, Cardinal.WEST)
     )
 
-
-    enum class EnclosedState {
-        OUTSIDE, ON, INSIDE
-    }
-
-    val stateTransitionLookup = mapOf(
-        EnclosedState.OUTSIDE to mapOf(
-            '└' to EnclosedState.ON,
-            '─' to null,
-            '┘' to null,
-            '│' to EnclosedState.INSIDE,
-            'S' to EnclosedState.INSIDE,
-            '┌' to EnclosedState.ON,
-            '┐' to null,
-        ),
-        EnclosedState.ON to mapOf(
-            '└' to EnclosedState.ON,
-            '─' to EnclosedState.ON,
-            '┘' to EnclosedState.OUTSIDE,
-            '│' to EnclosedState.OUTSIDE,
-            'S' to EnclosedState.OUTSIDE,
-            '┌' to null,
-            '┐' to EnclosedState.OUTSIDE,
-        ),
-        EnclosedState.INSIDE to mapOf(
-            '└' to EnclosedState.ON,
-            '─' to null,
-            '┘' to null,
-            '│' to EnclosedState.OUTSIDE,
-            'S' to EnclosedState.OUTSIDE,
-            '┌' to EnclosedState.ON,
-            '┐' to null,
-        ),
-    )
+    val reverseNeighborLookup = neighborLookup.map { (k, v) ->
+        v.toSet() to k
+    }.toMap()
 
     data class PipeSection(
         val pos: Pos,
@@ -97,8 +68,17 @@ object Day10 {
                 pipeLookup[direction.of(candidate.pos)]?.char == 'S'
             }
         }
-        val completePipe = getCompletePipe(startNeighbors, start, pipeLookup)
+        val anonymousStart = getAnonymousStart(start, startNeighbors.first(), startNeighbors.last())
+        val completePipe = getCompletePipe(startNeighbors, anonymousStart, pipeLookup + (anonymousStart.pos to anonymousStart))
         return completePipe
+    }
+
+    private fun getAnonymousStart(start: PipeSection, n1: PipeSection, n2: PipeSection): PipeSection {
+        val startNeighborDirections = Cardinal.entries.filter { it.of(start.pos) in listOf(n1.pos, n2.pos) }.toSet()
+        return PipeSection(
+            start.pos,
+            reverseNeighborLookup[startNeighborDirections] ?: error("Invalid start neighbors for $start: $startNeighborDirections")
+        )
     }
 
     private fun getCompletePipe(
@@ -123,10 +103,10 @@ object Day10 {
         }
     }
 
-    fun printPipe(pipe: List<PipeSection>, insides: Set<Pos> = setOf()) {
+    fun printPipe(pipe: List<PipeSection>, outsides: Set<Pos> = setOf()) {
         printGrid(pipe.associate {
             it.pos to "$BLACK$WHITE_BACKGROUND${it.prettyChar}$RESET"
-        } + insides.associateWith { "I" })
+        } + outsides.associateWith { "." })
     }
 
     fun part2(input: List<String>): Int {
@@ -135,24 +115,36 @@ object Day10 {
         val completePipeLookup = completePipe.associateBy { it.pos }
         val startRow = completePipe.minOf { it.pos.first }
         val startCol = completePipe.minOf { it.pos.second }
-        val endRow = completePipe.maxOf { it.pos.first }
-        val endCol = completePipe.maxOf { it.pos.second }
-        var totalInside = 0
-        val insides = mutableSetOf<Pos>()
-        (startRow..endRow).forEach { row ->
-            var state = EnclosedState.OUTSIDE
-            (startCol..endCol).forEach { col ->
-                val next = completePipeLookup[row to col]
-                if (next == null && state == EnclosedState.INSIDE) {
-                    totalInside++
-                    insides.add(row to col)
-                } else if (next != null) {
-                    state = stateTransitionLookup[state]!![next.prettyChar]!!
-                }
-            }
+        val endRow = completePipe.maxOf { it.pos.first } + 1
+        val endCol = completePipe.maxOf { it.pos.second } + 1
+        val start = startRow to startCol
+        val outsides = mutableSetOf(start)
+        var frontier = setOf(start)
+        while (frontier.isNotEmpty()) {
+            frontier = frontier.flatMap { pos ->
+                cornerNeighbors(pos, completePipeLookup).map { it.of(pos) }
+            }.filter {
+                it.first in startRow..endRow && it.second in startCol..endCol
+            }.filter {
+                it !in outsides
+            }.toSet()
+            outsides.addAll(frontier)
         }
-        printPipe(completePipe, insides)
-        return totalInside
+        outsides.removeIf { it in completePipeLookup.keys }
+        //printPipe(completePipe, outsides)
+        val total = (endRow - startRow + 1) * (endCol - startCol + 1)
+        return total - outsides.size - completePipe.size
+    }
+
+    fun cornerNeighbors(pos: Pos, pipe:  Map<Pos, PipeSection>): List<Cardinal> {
+        val southEastNeighbors = pipe[pos]?.neighborDirections ?: listOf()
+        val northWestNeighbors = pipe[pos + (-1 to -1)]?.neighborDirections ?: listOf()
+        return listOfNotNull(
+            if (Cardinal.WEST !in southEastNeighbors) Cardinal.SOUTH else null,
+            if (Cardinal.NORTH !in southEastNeighbors) Cardinal.EAST else null,
+            if (Cardinal.EAST !in northWestNeighbors) Cardinal.NORTH else null,
+            if (Cardinal.SOUTH !in northWestNeighbors) Cardinal.WEST else null,
+        )
     }
 
 }
@@ -167,12 +159,12 @@ fun main() {
     """.trimIndent().split("\n")
     println("------Tests------")
     println(Day10.part1(testInput))
-    //println(Day10.part2(testInput))
+    println(Day10.part2(testInput))
 
     println("------Real------")
     val input = readInput(2023, 10)
     println("Part 1 result: ${Day10.part1(input)}")
     println("Part 2 result: ${Day10.part2(input)}")
-    //timingStatistics { Day10.part1(input) }
-    //timingStatistics { Day10.part2(input) }
+    timingStatistics { Day10.part1(input) }
+    timingStatistics { Day10.part2(input) }
 }
