@@ -13,6 +13,7 @@ import y2023.Day10.EnclosedState.ON_NORTH_OUT
 import y2023.Day10.EnclosedState.ON_SOUTH_IN
 import y2023.Day10.EnclosedState.ON_SOUTH_OUT
 import y2023.Day10.EnclosedState.OUTSIDE
+import java.io.File
 
 object Day10 {
     val WHITE_BACKGROUND = "\u001b[47m"
@@ -181,7 +182,7 @@ object Day10 {
         return total - outsides.size - completePipe.size
     }
 
-    fun cornerNeighbors(pos: Pos, pipe:  Map<Pos, PipeSection>): List<Cardinal> {
+    fun cornerNeighbors(pos: Pos, pipe: Map<Pos, PipeSection>): List<Cardinal> {
         val southEastNeighbors = pipe[pos]?.neighborDirections ?: listOf()
         val northWestNeighbors = pipe[pos + (-1 to -1)]?.neighborDirections ?: listOf()
         return listOfNotNull(
@@ -196,6 +197,15 @@ object Day10 {
         val pipeSections = parse(input)
         val completePipe = sectionsToPipeLoop(pipeSections)
         val completePipeLookup = completePipe.associateBy { it.pos }
+        val insides = getInsides(completePipe, completePipeLookup, withPrint)
+        return insides.size
+    }
+
+    private fun getInsides(
+        completePipe: List<PipeSection>,
+        completePipeLookup: Map<Pos, PipeSection>,
+        withPrint: Boolean
+    ): MutableSet<Pos> {
         val startRow = completePipe.minOf { it.pos.first }
         val startCol = completePipe.minOf { it.pos.second }
         val endRow = completePipe.maxOf { it.pos.first }
@@ -215,7 +225,29 @@ object Day10 {
         if (withPrint) {
             printPipe(completePipe, insides)
         }
-        return insides.size
+        return insides
+    }
+
+    fun writeSolutionInfo(input: List<String>) {
+        val pipeSections = parse(input)
+        val completePipe = sectionsToPipeLoop(pipeSections)
+        val completePipeLookup = completePipe.associateBy { it.pos }
+        val partIndices = prettyPrinting.keys.associateWith { prettyPrinting.keys.indexOf(it) + 1 } + mapOf(
+            'S' to prettyPrinting.keys.size * 2 + 1,
+            '.' to 0
+        )
+        println(partIndices)
+        val str = input.mapIndexed { row, line ->
+            line.mapIndexed { col, c ->
+                val partIdx = partIndices[c] ?: error("Invalid char $c")
+                if (row to col in completePipeLookup) {
+                    partIdx + prettyPrinting.keys.size
+                } else {
+                    partIdx
+                }
+            }.joinToString(prefix = "[", postfix = "]")
+        }.joinToString(prefix = "[", postfix = "]")
+        File("src", "resources/util/2023-day10.json").writeText(str)
     }
 }
 
@@ -239,4 +271,5 @@ fun main() {
     timingStatistics { Day10.part1(input) }
     timingStatistics { Day10.part2(input) }
     timingStatistics { Day10.part2Iterative(input) }
+    Day10.writeSolutionInfo(input)
 }
