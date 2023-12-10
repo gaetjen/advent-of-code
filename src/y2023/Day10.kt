@@ -7,6 +7,12 @@ import util.plus
 import util.printGrid
 import util.readInput
 import util.timingStatistics
+import y2023.Day10.EnclosedState.INSIDE
+import y2023.Day10.EnclosedState.ON_NORTH_IN
+import y2023.Day10.EnclosedState.ON_NORTH_OUT
+import y2023.Day10.EnclosedState.ON_SOUTH_IN
+import y2023.Day10.EnclosedState.ON_SOUTH_OUT
+import y2023.Day10.EnclosedState.OUTSIDE
 
 object Day10 {
     val WHITE_BACKGROUND = "\u001b[47m"
@@ -43,6 +49,43 @@ object Day10 {
         val prettyChar = prettyPrinting[char] ?: char
         val neighborDirections = neighborLookup[char] ?: listOf()
     }
+
+    enum class EnclosedState {
+        OUTSIDE, ON_NORTH_OUT, ON_SOUTH_OUT, ON_NORTH_IN, ON_SOUTH_IN, INSIDE
+    }
+
+    val stateTransitionLookup = mapOf(
+        OUTSIDE to mapOf(
+            '└' to ON_NORTH_OUT,
+            '│' to INSIDE,
+            '┌' to ON_SOUTH_OUT,
+        ),
+        INSIDE to mapOf(
+            '└' to ON_NORTH_IN,
+            '│' to OUTSIDE,
+            '┌' to ON_SOUTH_IN,
+        ),
+        ON_NORTH_OUT to mapOf(
+            '─' to ON_NORTH_OUT,
+            '┘' to OUTSIDE,
+            '┐' to INSIDE,
+        ),
+        ON_SOUTH_OUT to mapOf(
+            '─' to ON_SOUTH_OUT,
+            '┘' to INSIDE,
+            '┐' to OUTSIDE,
+        ),
+        ON_NORTH_IN to mapOf(
+            '─' to ON_NORTH_IN,
+            '┘' to INSIDE,
+            '┐' to OUTSIDE,
+        ),
+        ON_SOUTH_IN to mapOf(
+            '─' to ON_SOUTH_IN,
+            '┘' to OUTSIDE,
+            '┐' to INSIDE,
+        ),
+    )
 
     private fun parse(input: List<String>): List<PipeSection> {
         return input.mapIndexed { rowIdx, line ->
@@ -103,10 +146,10 @@ object Day10 {
         }
     }
 
-    fun printPipe(pipe: List<PipeSection>, outsides: Set<Pos> = setOf()) {
+    fun printPipe(pipe: List<PipeSection>, others: Set<Pos> = setOf()) {
         printGrid(pipe.associate {
             it.pos to "$BLACK$WHITE_BACKGROUND${it.prettyChar}$RESET"
-        } + outsides.associateWith { "." })
+        } + others.associateWith { "." })
     }
 
     fun part2(input: List<String>, withPrint: Boolean = false): Int {
@@ -149,6 +192,31 @@ object Day10 {
         )
     }
 
+    fun part2Iterative(input: List<String>, withPrint: Boolean = false): Int {
+        val pipeSections = parse(input)
+        val completePipe = sectionsToPipeLoop(pipeSections)
+        val completePipeLookup = completePipe.associateBy { it.pos }
+        val startRow = completePipe.minOf { it.pos.first }
+        val startCol = completePipe.minOf { it.pos.second }
+        val endRow = completePipe.maxOf { it.pos.first }
+        val endCol = completePipe.maxOf { it.pos.second }
+        val insides = mutableSetOf<Pos>()
+        (startRow..endRow).forEach { row ->
+            var state = OUTSIDE
+            (startCol..endCol).forEach { col ->
+                val next = completePipeLookup[row to col]
+                if (next == null && state == INSIDE) {
+                    insides.add(row to col)
+                } else if (next != null) {
+                    state = stateTransitionLookup[state]!![next.prettyChar]!!
+                }
+            }
+        }
+        if (withPrint) {
+            printPipe(completePipe, insides)
+        }
+        return insides.size
+    }
 }
 
 fun main() {
@@ -167,6 +235,8 @@ fun main() {
     val input = readInput(2023, 10)
     println("Part 1 result: ${Day10.part1(input)}")
     println("Part 2 result: ${Day10.part2(input, withPrint = true)}")
+    println("Part 2 result iterative: ${Day10.part2Iterative(input, withPrint = true)}")
     timingStatistics { Day10.part1(input) }
     timingStatistics { Day10.part2(input) }
+    timingStatistics { Day10.part2Iterative(input) }
 }
