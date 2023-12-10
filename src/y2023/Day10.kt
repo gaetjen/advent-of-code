@@ -109,7 +109,7 @@ object Day10 {
         } + outsides.associateWith { "." })
     }
 
-    fun part2(input: List<String>): Int {
+    fun part2(input: List<String>, withPrint: Boolean = false): Int {
         val pipeSections = parse(input)
         val completePipe = sectionsToPipeLoop(pipeSections)
         val completePipeLookup = completePipe.associateBy { it.pos }
@@ -131,7 +131,9 @@ object Day10 {
             outsides.addAll(frontier)
         }
         outsides.removeIf { it in completePipeLookup.keys }
-        //printPipe(completePipe, outsides)
+        if (withPrint) {
+            printPipe(completePipe, outsides)
+        }
         val total = (endRow - startRow + 1) * (endCol - startCol + 1)
         return total - outsides.size - completePipe.size
     }
@@ -164,7 +166,7 @@ fun main() {
     println("------Real------")
     val input = readInput(2023, 10)
     println("Part 1 result: ${Day10.part1(input)}")
-    println("Part 2 result: ${Day10.part2(input)}")
+    println("Part 2 result: ${Day10.part2(input, withPrint = true)}")
     timingStatistics { Day10.part1(input) }
     timingStatistics { Day10.part2(input) }
 }
