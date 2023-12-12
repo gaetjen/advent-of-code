@@ -61,18 +61,18 @@ object Day12 {
         }
     }
 
-    private val cache = mutableMapOf<Pair<String, List<Int>>, Long>()
+    val cache = mutableMapOf<Pair<String, List<Int>>, Long>()
 
     private fun arrangementCount(conditions: String, groupSizes: List<Int>, terminateEarly: Boolean): Long {
         val cached = cache[conditions to groupSizes]
         if (cached != null) {
             return cached
         }
+        val remainingBroken = conditions.count { it == 'B' }
+        val expectedBroken = groupSizes.sum()
         if (terminateEarly) {
             // do some quick checks for hopefully some early termination optimization
-            val remainingBroken = conditions.count { it == 'B' }
             val remainingUnknown = conditions.count { it == 'U' }
-            val expectedBroken = groupSizes.sum()
             if (remainingBroken > expectedBroken) {
                 cache[conditions to groupSizes] = 0
                 return 0
@@ -96,6 +96,17 @@ object Day12 {
                 return 1
             }
         }
+
+        if (expectedBroken == 0) {
+            if (remainingBroken == 0) {
+                cache[conditions to groupSizes] = 1
+                return 1
+            } else {
+                cache[conditions to groupSizes] = 0
+                return 0
+            }
+        }
+
         // should never throw if we have the terminateEarly branch
         val nextGroupSize = groupSizes.first()
         // we may not skip any broken springs
@@ -149,14 +160,14 @@ object Day12 {
         }
     }
 
-    fun part2(input: List<String>, withLogging: Boolean = false): Long {
+    fun part2(input: List<String>, withLogging: Boolean = false, terminateEarly: Boolean = true): Long {
         val parsed = parseFast(input)
         var progress = 0
         val counts =  parsed.map { (conditions, groupSizes) ->
             val expandedConditions = List(5) { conditions }.joinToString(separator = "U")
             val expandedGroupSizes = List(5) { groupSizes }.flatten()
             if (withLogging) print("${++progress}/${parsed.size} $expandedConditions $expandedGroupSizes")
-            val count = arrangementCount(expandedConditions, expandedGroupSizes, true)
+            val count = arrangementCount(expandedConditions, expandedGroupSizes, terminateEarly)
             if (withLogging) println(" -> $count")
             count
         }
@@ -186,8 +197,10 @@ fun main() {
     val input = readInput(2023, 12)
     //println("Part 1 result: ${Day12.part1(input)}")
     println("Part 1 result: ${part1Fast(input)}")
-    println("Part 2 result: ${Day12.part2(input, true)}")
+    println("Part 2 result: ${Day12.part2(input, false)}")
+    println("Part 2 result without early termination: ${Day12.part2(input, false, false)}")
     //timingStatistics { Day12.part1(input) }
     timingStatistics { part1Fast(input) }
     timingStatistics { Day12.part2(input) }
+    timingStatistics { Day12.part2(input, false, false) }
 }
