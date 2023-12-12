@@ -2,6 +2,7 @@ package y2023
 
 import util.readInput
 import util.split
+import util.timingStatistics
 
 object Day12 {
     enum class SpringCondition(val c: Char) {
@@ -42,49 +43,88 @@ object Day12 {
         }
     }
 
-    /*private fun arrangementCount(conditions: List<SpringCondition>, groupSizes: List<Int>): Int {
-        val actual = actualGroupSizes(conditions)
-        if (conditions.count { it == SpringCondition.UNKNOWN } == 0) {
-            return if (actual == groupSizes) {
-                1
-            } else {
-                0
+    private fun parseFast(input: List<String>): List<Pair<String, List<Int>>> {
+        return input.map { line ->
+            val (conditionString, groupSizes) = line.split(" ")
+            conditionString
+                .replace('?', 'U')
+                .replace('#', 'B')
+                .replace("\\.+".toRegex(), "O") to groupSizes.split(",").map { it.toInt() }
+        }
+    }
+
+    fun part1Fast(input: List<String>, terminateEarly: Boolean = true): Long {
+        val parsed = parseFast(input)
+        return parsed.sumOf { (conditions, groupSizes) ->
+            arrangementCount(conditions, groupSizes, terminateEarly)
+        }
+    }
+
+    private fun arrangementCount(conditions: String, groupSizes: List<Int>, terminateEarly: Boolean): Long {
+        if (terminateEarly) {
+            // do some quick checks for hopefully some early termination optimization
+            val remainingBroken = conditions.count { it == 'B' }
+            val remainingUnknown = conditions.count { it == 'U' }
+            val expectedBroken = groupSizes.sum()
+            if (remainingBroken > expectedBroken) {
+                return 0
+            }
+            if (remainingBroken + remainingUnknown < expectedBroken) {
+                return 0
+            }
+            if (remainingUnknown == 0 && remainingBroken == expectedBroken) {
+                return if (actualGroupSizes(conditions) == groupSizes) 1 else 0
+            }
+            // this one is still needed for not early termination
+            if (expectedBroken == 0) {
+                return 1
             }
         }
+        // should never throw if we have the terminateEarly branch
+        val nextGroupSize = groupSizes.first()
+        val match = """^[^B]*?(?<brokens>[BU]{$nextGroupSize})(U|O|$)""".toRegex().find(conditions) ?: return 0
 
-        val unknownIndex = conditions.indexOfFirst { it == SpringCondition.UNKNOWN }
-        if (unknownIndex > 0) {
-            val fixedPart = conditions.subList(0, unknownIndex + 1)
-            val fixedPartSizes = actualGroupSizes(fixedPart.dropLast(1))
-
-            val isMatching = fixedPartSizes.zip(groupSizes).all { it.first == it.second }
-            val lastFixedPart = fixedPart[unknownIndex - 1]
-            // the counts are matching and the last part is broken so the unknown element must be operational
-            if (isMatching && lastFixedPart == SpringCondition.BROKEN) {
-
-            }
+        val withConsumed = arrangementCount(conditions.substring(match.range.last + 1), groupSizes.drop(1), terminateEarly)
+        val brokens = match.groups["brokens"]
+        return if (brokens?.value?.first() == 'U') {
+            withConsumed + arrangementCount(
+                conditions.substring(brokens.range.first + 1),
+                groupSizes,
+                terminateEarly
+            )
+        } else {
+            withConsumed
         }
-
-        if (!isMatching) {
-            return 0
-        }
-
-        // If the last fixed part is operational, the next
-        if (conditions[unknownIndex - 1] == SpringCondition.OPERATIONAL) {
-            return arrangementCount(conditions.subList(unknownIndex + 1, conditions.size), groupSizes.drop(fixedPartSizes.size))
-        }
-        val remaining = conditions.subList(unknownIndex, conditions.size)
-        check(remaining[0] == SpringCondition.UNKNOWN)
-
-
-        TODO("Not yet implemented")
-    }*/
+    }
 
     private fun actualGroupSizes(conditions: List<SpringCondition>): List<Int> {
         return conditions
             .split { it == SpringCondition.OPERATIONAL }
             .map { it.size }
             .filter { it > 0 }
+    }
+
+    private fun actualGroupSizes(conditions: String): List<Int> {
+        return conditions
+            .split("O")
+            .map { it.length }
+            .filter { it > 0 }
+    }
+
+    fun debug(input: List<String>) {
+        val parsedExpected = parse(input)
+        val parsedActual = parseFast(input)
+        parsedExpected.zip(parsedActual).forEach { (expected, actual) ->
+            val expectedCount = arrangementCount(expected.first, expected.second)
+            val actualCount = arrangementCount(actual.first, actual.second, true)
+            if (expectedCount.toLong() == actualCount) {
+                println("OK: ${expected.first} ${expected.second} -> $expectedCount")
+            } else {
+                println("FAIL: ${expected.first} ${expected.second} -> $expectedCount != $actualCount")
+                println(actual)
+                return
+            }
+        }
     }
 
     fun part2(input: List<String>): Long {
@@ -94,12 +134,7 @@ object Day12 {
 }
 
 fun main() {
-    val a = listOf(1, 2, 3, 4, 5, 6, 7, 8)
-    val b = listOf(1, 2, 3)
-    println(a.zip(b))
-    println(b.subList(3, 3))
     val testInput = """
-        ..###...?..##.?.### 3,2,3
         ???.### 1,1,3
         .??..??...?##. 1,1,3
         ?#?#?#?#?#?#?#? 1,3,1,6
@@ -108,13 +143,16 @@ fun main() {
         ?###???????? 3,2,1
     """.trimIndent().split("\n")
     println("------Tests------")
-    println("${Day12.part1(testInput)}, expected 22")
+    println("${Day12.part1(testInput)}")
+    println("${Day12.part1Fast(testInput)}")
     println(Day12.part2(testInput))
 
     println("------Real------")
     val input = readInput(2023, 12)
-    println("Part 1 result: ${Day12.part1(input)}")
+    //println("Part 1 result: ${Day12.part1(input)}")
+    println("Part 1 result: ${Day12.part1Fast(input)}")
     println("Part 2 result: ${Day12.part2(input)}")
     //timingStatistics { Day12.part1(input) }
+    timingStatistics { Day12.part1Fast(input) }
     //timingStatistics { Day12.part2(input) }
 }
