@@ -3,6 +3,7 @@ package y2023
 import util.readInput
 import util.split
 import util.timingStatistics
+import y2023.Day12.part1Fast
 
 object Day12 {
     enum class SpringCondition(val c: Char) {
@@ -60,39 +61,60 @@ object Day12 {
         }
     }
 
+    private val cache = mutableMapOf<Pair<String, List<Int>>, Long>()
+
     private fun arrangementCount(conditions: String, groupSizes: List<Int>, terminateEarly: Boolean): Long {
+        val cached = cache[conditions to groupSizes]
+        if (cached != null) {
+            return cached
+        }
         if (terminateEarly) {
             // do some quick checks for hopefully some early termination optimization
             val remainingBroken = conditions.count { it == 'B' }
             val remainingUnknown = conditions.count { it == 'U' }
             val expectedBroken = groupSizes.sum()
             if (remainingBroken > expectedBroken) {
+                cache[conditions to groupSizes] = 0
                 return 0
             }
             if (remainingBroken + remainingUnknown < expectedBroken) {
+                cache[conditions to groupSizes] = 0
                 return 0
             }
             if (remainingUnknown == 0 && remainingBroken == expectedBroken) {
-                return if (actualGroupSizes(conditions) == groupSizes) 1 else 0
+                return if (actualGroupSizes(conditions) == groupSizes) {
+                    cache[conditions to groupSizes] = 1
+                    1
+                } else{
+                    cache[conditions to groupSizes] = 0
+                    0
+                }
             }
             // this one is still needed for not early termination
             if (expectedBroken == 0) {
+                cache[conditions to groupSizes] = 1
                 return 1
             }
         }
         // should never throw if we have the terminateEarly branch
         val nextGroupSize = groupSizes.first()
+        // we may not skip any broken springs
+        // then we take the correct number of broken or unknown springs
+        // it may not be followed immediately by a broken spring, i.e. next is unknown, operational or end of string
         val match = """^[^B]*?(?<brokens>[BU]{$nextGroupSize})(U|O|$)""".toRegex().find(conditions) ?: return 0
 
         val withConsumed = arrangementCount(conditions.substring(match.range.last + 1), groupSizes.drop(1), terminateEarly)
         val brokens = match.groups["brokens"]
         return if (brokens?.value?.first() == 'U') {
-            withConsumed + arrangementCount(
+            val operationalFirst = arrangementCount(
                 conditions.substring(brokens.range.first + 1),
                 groupSizes,
                 terminateEarly
             )
+            cache[conditions to groupSizes] = withConsumed + operationalFirst
+            withConsumed + operationalFirst
         } else {
+            cache[conditions to groupSizes] = withConsumed
             withConsumed
         }
     }
@@ -127,9 +149,22 @@ object Day12 {
         }
     }
 
-    fun part2(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+    fun part2(input: List<String>, withLogging: Boolean = false): Long {
+        val parsed = parseFast(input)
+        var progress = 0
+        val counts =  parsed.map { (conditions, groupSizes) ->
+            val expandedConditions = List(5) { conditions }.joinToString(separator = "U")
+            val expandedGroupSizes = List(5) { groupSizes }.flatten()
+            if (withLogging) print("${++progress}/${parsed.size} $expandedConditions $expandedGroupSizes")
+            val count = arrangementCount(expandedConditions, expandedGroupSizes, true)
+            if (withLogging) println(" -> $count")
+            count
+        }
+        if (withLogging) {
+            println("Cache: ${cache.size}")
+        }
+        cache.clear()
+        return counts.sum()
     }
 }
 
@@ -143,16 +178,16 @@ fun main() {
         ?###???????? 3,2,1
     """.trimIndent().split("\n")
     println("------Tests------")
-    println("${Day12.part1(testInput)}")
-    println("${Day12.part1Fast(testInput)}")
+    println(Day12.part1(testInput))
+    println(part1Fast(testInput))
     println(Day12.part2(testInput))
 
     println("------Real------")
     val input = readInput(2023, 12)
     //println("Part 1 result: ${Day12.part1(input)}")
-    println("Part 1 result: ${Day12.part1Fast(input)}")
-    println("Part 2 result: ${Day12.part2(input)}")
+    println("Part 1 result: ${part1Fast(input)}")
+    println("Part 2 result: ${Day12.part2(input, true)}")
     //timingStatistics { Day12.part1(input) }
-    timingStatistics { Day12.part1Fast(input) }
-    //timingStatistics { Day12.part2(input) }
+    timingStatistics { part1Fast(input) }
+    timingStatistics { Day12.part2(input) }
 }
