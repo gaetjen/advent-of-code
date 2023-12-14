@@ -74,7 +74,7 @@ object Day19 {
             return collected.amounts + robotNumbers.amounts + listOf(remainingMinutes)
         }
 
-        val maxBots = transpose(blueprint.costList().map { it.amounts }).map { it.max() }
+        val maxBots = blueprint.costList().map { it.amounts }.transpose().map { it.max() }
 
         fun maxGeodes(): Int {
             if (remainingMinutes == 0) {

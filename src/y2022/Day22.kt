@@ -6,11 +6,11 @@ import util.Direction.LEFT
 import util.Direction.RIGHT
 import util.Direction.UP
 import util.Pos
+import util.get
 import util.printGrid
 import util.readInput
 import util.split
 import util.transpose
-import util.get
 
 object Day22 {
     sealed class Instruction {
@@ -116,8 +116,8 @@ object Day22 {
     class FlatMap(tiles: List<List<MapTile>>) : MonkeyMap(tiles) {
         val leftEdge: List<MapTile> = tiles.map { it.first { tile -> tile.real } }
         val rightEdge: List<MapTile> = tiles.map { it.last { tile -> tile.real } }
-        val topEdge: List<MapTile> = transpose(tiles).map { it.first { tile -> tile.real } }
-        val bottomEdge: List<MapTile> = transpose(tiles).map { it.last { tile -> tile.real } }
+        val topEdge: List<MapTile> = tiles.transpose().map { it.first { tile -> tile.real } }
+        val bottomEdge: List<MapTile> = tiles.transpose().map { it.last { tile -> tile.real } }
 
         override fun realTile(at: Pos): Pair<MapTile, Direction> {
             return if (tiles[at].real) {

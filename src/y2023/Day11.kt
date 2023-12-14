@@ -8,8 +8,8 @@ import y2022.Day15.manhattanDist
 
 object Day11 {
     private fun parse(input: List<String>): List<Pos> {
-        val asChars = transpose(input.map { it.toCharArray().toList() })
-        val expandedCols = transpose(expanded(asChars).toList())
+        val asChars = input.map { it.toCharArray().toList() }.transpose()
+        val expandedCols = expanded(asChars).toList().transpose()
         val allExpanded = expanded(expandedCols).toList()
         return positions(allExpanded)
     }

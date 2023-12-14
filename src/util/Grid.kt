@@ -19,10 +19,10 @@ fun Pos.neighborsManhattan(): List<Pos> {
     return Cardinal.entries.map { it.of(this) }
 }
 
-fun <T> transpose(matrix: List<List<T>>): List<List<T>> {
-    return List(matrix.first().size) { rowIdx ->
-        List(matrix.size) { colIdx ->
-            matrix[colIdx][rowIdx]
+fun <T> List<List<T>>.transpose(): List<List<T>> {
+    return List(first().size) { rowIdx ->
+        List(size) { colIdx ->
+            this[colIdx][rowIdx]
         }
     }
 }

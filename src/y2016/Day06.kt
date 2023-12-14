@@ -5,17 +5,17 @@ import util.transpose
 
 object Day06 {
     fun part1(input: List<String>): String {
-        return transpose(input.map {
+        return input.map {
             it.toList()
-        }).map { chars ->
+        }.transpose().map { chars ->
             chars.groupingBy { it }.eachCount().maxBy { it.value }.key
         }.joinToString(separator = "") { it.toString() }
     }
 
     fun part2(input: List<String>): String {
-        return transpose(input.map {
+        return input.map {
             it.toList()
-        }).map { chars ->
+        }.transpose().map { chars ->
             chars.groupingBy { it }.eachCount().minBy { it.value }.key
         }.joinToString(separator = "") { it.toString() }
     }

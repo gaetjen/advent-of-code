@@ -14,7 +14,7 @@ object Day13 {
         val parsed = parse(input)
         return parsed.sumOf { block ->
             val row = reflectionRow(block)
-            val col = reflectionRow(transpose(block.map { it.toList() }))
+            val col = reflectionRow(block.map { it.toList() }.transpose())
             if (row == null && col != null) {
                 col
             } else if (col == null && row != null) {
@@ -45,7 +45,7 @@ object Day13 {
         return parsed.sumOf { block ->
             val chars = block.map { it.toList() }
             val row = offByOneReflectionRow(chars)
-            val col = offByOneReflectionRow(transpose(chars))
+            val col = offByOneReflectionRow(chars.transpose())
             if (row == null && col != null) {
                 col
             } else if (col == null && row != null) {

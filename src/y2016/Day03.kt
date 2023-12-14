@@ -22,7 +22,7 @@ object Day03 {
     fun part2(input: List<String>): Int {
         val parsed = parse(input)
         return parsed.chunked(3).map {
-            transpose(it)
+            it.transpose()
         }.flatten().count {
             it.sum() - it.max() > it.max()
         }
