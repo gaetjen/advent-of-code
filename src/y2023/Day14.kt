@@ -15,7 +15,7 @@ object Day14 {
 
     data class Tile(
         val type: TileType,
-        var pos: Pos,
+        val pos: Pos,
     )
 
     private fun parse(input: List<String>): MutableList<MutableList<Tile>> {
@@ -55,7 +55,7 @@ object Day14 {
         val rocks = parse(input)
         rocks.flatten().forEach {
             if (it.type == TileType.ROLLER) {
-                roll(it, Cardinal.NORTH, rocks)
+                roll(it.pos, Cardinal.NORTH, rocks)
             }
         }
         return rocks.transpose().sumOf {
@@ -69,15 +69,14 @@ object Day14 {
 
     fun Pos.coerce(maxes: Pos): Pos = first.coerceIn(0 until maxes.first) to second.coerceIn(0 until maxes.second)
 
-    fun roll(tile: Tile, dir: Cardinal, rocks: MutableList<MutableList<Tile>>) {
-        val newPos = dir.of(tile.pos).coerce(rocks.size to rocks[0].size)
+    fun roll(pos: Pos, dir: Cardinal, rocks: MutableList<MutableList<Tile>>) {
+        val newPos = dir.of(pos).coerce(rocks.size to rocks[0].size)
         if (rocks[newPos].type != TileType.EMPTY) {
             return
         }
-        rocks[newPos] = tile
-        rocks[tile.pos] = Tile(TileType.EMPTY, tile.pos)
-        tile.pos = newPos
-        roll(tile, dir, rocks)
+        rocks[newPos] = Tile(TileType.ROLLER, newPos)
+        rocks[pos] = Tile(TileType.EMPTY, pos)
+        roll(newPos, dir, rocks)
     }
 
 
@@ -97,7 +96,7 @@ object Day14 {
         while (stateHistory.last() !in stateHistory.subList(0, stateHistory.size - 1)) {
             cycle.forEach { (dir, sort) ->
                 sort(rocks.flatten().filter { it.type == TileType.ROLLER }).forEach {
-                    roll(it, dir, rocks)
+                    roll(it.pos, dir, rocks)
                 }
             }
             stateHistory.add(rocksToString(rocks) to rocks.transpose().sumOf {
