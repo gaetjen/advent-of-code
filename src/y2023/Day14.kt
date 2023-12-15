@@ -64,13 +64,17 @@ object Day14 {
     }
 
     fun load(row: List<Tile>): Int {
-        return row.indices.reversed().zip(row).filter { it.second.type == TileType.ROLLER }.sumOf { it.first + 1 }
+        return row.indices
+            .reversed()
+            .zip(row)
+            .filter { it.second.type == TileType.ROLLER }
+            .sumOf { it.first + 1 }
     }
 
-    fun Pos.coerce(maxes: Pos): Pos = first.coerceIn(0 until maxes.first) to second.coerceIn(0 until maxes.second)
+    fun Pos.coerce(maxes: Pos): Pos = first.coerceIn(0, maxes.first) to second.coerceIn(0, maxes.second)
 
     fun roll(pos: Pos, dir: Cardinal, rocks: MutableList<MutableList<Tile>>) {
-        val newPos = dir.of(pos).coerce(rocks.size to rocks[0].size)
+        val newPos = dir.of(pos).coerce(rocks.size - 1 to rocks[0].size - 1)
         if (rocks[newPos].type != TileType.EMPTY) {
             return
         }
