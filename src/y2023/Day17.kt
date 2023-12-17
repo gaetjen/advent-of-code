@@ -96,7 +96,7 @@ object Day17 {
     fun expand(step: Step, blocks: List<List<Block>>, target: Pos): List<Step> {
         return Cardinal.entries.filter {
             it.relativePos + step.direction.relativePos != 0 to 0 &&
-                    (step.consecutiveCount <= 2 || it != step.direction) &&
+                    (step.consecutiveCount < 3 || it != step.direction) &&
                     it.of(step.pos).coerce(target) == it.of(step.pos)
         }.map {
             val newPos = it.of(step.pos)
@@ -112,7 +112,67 @@ object Day17 {
 
     fun part2(input: List<String>): Long {
         val parsed = parse(input)
-        return 0L
+        val target = parsed.last().last().pos
+        val queue = PriorityQueue<Step>(compareBy {
+            it.heuristic(target)
+        })
+        queue.add(Step(Cardinal.EAST, 0, Pos(0, 0), 0, listOf(0 to 0)))
+        var end: Step? = null
+        val minsSoFar = mutableMapOf(
+            SearchState(
+                pos = Pos(0, 0),
+                consecutiveCount = 0,
+                direction = Cardinal.EAST
+            ) to 0
+        )
+        while (queue.isNotEmpty()) {
+            val nextToExpand = queue.poll()!!
+
+            if (nextToExpand.pos == target) {
+                end = nextToExpand
+                break
+            }
+            val nexts = expandUltra(nextToExpand, parsed, target).filter {
+                val searchState = SearchState(
+                    pos = it.pos,
+                    consecutiveCount = it.consecutiveCount,
+                    direction = it.direction
+                )
+                if (minsSoFar[searchState] == null || minsSoFar[searchState]!! > it.totalHeatLoss) {
+                    if (minsSoFar[searchState] != null) {
+                        println("updating optimum")
+                    }
+                    minsSoFar[searchState] = it.totalHeatLoss
+                    true
+                } else {
+                    false
+                }
+            }
+            queue.addAll(nexts)
+        }
+        if (end != null) {
+            printGrid(
+                end.history.associateWith { "#" }
+            )
+        }
+        return end?.totalHeatLoss?.toLong() ?: error("didn't find a path")
+    }
+
+    fun expandUltra(step: Step, blocks: List<List<Block>>, target: Pos): List<Step> {
+        return Cardinal.entries.filter {
+            it.relativePos + step.direction.relativePos != 0 to 0 &&
+                    it.of(step.pos).coerce(target) == it.of(step.pos) &&
+                    (it == step.direction && step.consecutiveCount < 10  || it != step.direction && step.consecutiveCount >= 4)
+        }.map {
+            val newPos = it.of(step.pos)
+            Step(
+                direction = it,
+                totalHeatLoss = step.totalHeatLoss + blocks[newPos].heatLoss,
+                pos = newPos,
+                consecutiveCount = if (it == step.direction) step.consecutiveCount + 1 else 1,
+                history = step.history + newPos
+            )
+        }
     }
 }
 
