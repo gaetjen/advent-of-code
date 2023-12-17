@@ -4,8 +4,8 @@ import util.Cardinal
 import util.Pos
 import util.get
 import util.plus
-import util.printGrid
 import util.readInput
+import util.timingStatistics
 import y2022.Day15.manhattanDist
 import y2023.Day14.coerce
 import java.util.PriorityQueue
@@ -45,9 +45,15 @@ object Day17 {
         val direction: Cardinal
     )
 
-    fun part1(input: List<String>): Long {
+    fun part1(input: List<String>): Int {
         val parsed = parse(input)
         val target = parsed.last().last().pos
+        return shortestPath(target, parsed) { step, dir ->
+            step.consecutiveCount < 3 || dir != step.direction
+        }.totalHeatLoss
+    }
+
+    private fun shortestPath(target: Pos, parsed: List<List<Block>>, condition: (s: Step, d: Cardinal) -> Boolean): Step {
         val queue = PriorityQueue<Step>(compareBy {
             it.heuristic(target)
         })
@@ -67,16 +73,13 @@ object Day17 {
                 end = nextToExpand
                 break
             }
-            val nexts = expand(nextToExpand, parsed, target).filter {
+            val nexts = expand(nextToExpand, parsed, target, condition).filter {
                 val searchState = SearchState(
                     pos = it.pos,
                     consecutiveCount = it.consecutiveCount,
                     direction = it.direction
                 )
                 if (minsSoFar[searchState] == null || minsSoFar[searchState]!! > it.totalHeatLoss) {
-                    if (minsSoFar[searchState] != null) {
-                        println("updating optimum")
-                    }
                     minsSoFar[searchState] = it.totalHeatLoss
                     true
                 } else {
@@ -85,84 +88,14 @@ object Day17 {
             }
             queue.addAll(nexts)
         }
-        if (end != null) {
-            printGrid(
-                end.history.associateWith { "#" }
-            )
-        }
-        return end?.totalHeatLoss?.toLong() ?: error("didn't find a path")
+        return end ?: error("didn't find a path")
     }
 
-    fun expand(step: Step, blocks: List<List<Block>>, target: Pos): List<Step> {
-        return Cardinal.entries.filter {
-            it.relativePos + step.direction.relativePos != 0 to 0 &&
-                    (step.consecutiveCount < 3 || it != step.direction) &&
-                    it.of(step.pos).coerce(target) == it.of(step.pos)
-        }.map {
-            val newPos = it.of(step.pos)
-            Step(
-                direction = it,
-                totalHeatLoss = step.totalHeatLoss + blocks[newPos].heatLoss,
-                pos = newPos,
-                consecutiveCount = if (it == step.direction) step.consecutiveCount + 1 else 1,
-                history = step.history + newPos
-            )
-        }
-    }
-
-    fun part2(input: List<String>): Long {
-        val parsed = parse(input)
-        val target = parsed.last().last().pos
-        val queue = PriorityQueue<Step>(compareBy {
-            it.heuristic(target)
-        })
-        queue.add(Step(Cardinal.EAST, 0, Pos(0, 0), 0, listOf(0 to 0)))
-        var end: Step? = null
-        val minsSoFar = mutableMapOf(
-            SearchState(
-                pos = Pos(0, 0),
-                consecutiveCount = 0,
-                direction = Cardinal.EAST
-            ) to 0
-        )
-        while (queue.isNotEmpty()) {
-            val nextToExpand = queue.poll()!!
-
-            if (nextToExpand.pos == target) {
-                end = nextToExpand
-                break
-            }
-            val nexts = expandUltra(nextToExpand, parsed, target).filter {
-                val searchState = SearchState(
-                    pos = it.pos,
-                    consecutiveCount = it.consecutiveCount,
-                    direction = it.direction
-                )
-                if (minsSoFar[searchState] == null || minsSoFar[searchState]!! > it.totalHeatLoss) {
-                    if (minsSoFar[searchState] != null) {
-                        println("updating optimum")
-                    }
-                    minsSoFar[searchState] = it.totalHeatLoss
-                    true
-                } else {
-                    false
-                }
-            }
-            queue.addAll(nexts)
-        }
-        if (end != null) {
-            printGrid(
-                end.history.associateWith { "#" }
-            )
-        }
-        return end?.totalHeatLoss?.toLong() ?: error("didn't find a path")
-    }
-
-    fun expandUltra(step: Step, blocks: List<List<Block>>, target: Pos): List<Step> {
+    fun expand(step: Step, blocks: List<List<Block>>, target: Pos, condition: (s: Step, d: Cardinal) -> Boolean): List<Step> {
         return Cardinal.entries.filter {
             it.relativePos + step.direction.relativePos != 0 to 0 &&
                     it.of(step.pos).coerce(target) == it.of(step.pos) &&
-                    (it == step.direction && step.consecutiveCount < 10  || it != step.direction && step.consecutiveCount >= 4)
+                    condition(step, it)
         }.map {
             val newPos = it.of(step.pos)
             Step(
@@ -173,6 +106,14 @@ object Day17 {
                 history = step.history + newPos
             )
         }
+    }
+
+    fun part2(input: List<String>): Int {
+        val parsed = parse(input)
+        val target = parsed.last().last().pos
+        return shortestPath(target, parsed) { step, dir ->
+            dir == step.direction && step.consecutiveCount < 10  || dir != step.direction && step.consecutiveCount >= 4
+        }.totalHeatLoss
     }
 }
 
@@ -200,6 +141,6 @@ fun main() {
     val input = readInput(2023, 17)
     println("Part 1 result: ${Day17.part1(input)}")
     println("Part 2 result: ${Day17.part2(input)}")
-    //timingStatistics { Day17.part1(input) }
-    //timingStatistics { Day17.part2(input) }
+    timingStatistics { Day17.part1(input) }
+    timingStatistics { Day17.part2(input) }
 }
