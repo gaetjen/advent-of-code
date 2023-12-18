@@ -102,12 +102,13 @@ object Day18 {
         check(correctedCorners.size == parsed.size)
         val cornerColLookup = correctedCorners.groupBy { it.second }
         val startCol = correctedCorners.minOf { it.second }
-        val endCol = correctedCorners.maxOf { it.second }
 
         var activeRanges = listOf<LongRange>()
         var totalArea = 0L
-        (startCol..endCol).forEach { colIdx ->
-            totalArea += columnArea(activeRanges)
+        var lastCol = startCol
+        cornerColLookup.keys.sorted().forEach { colIdx ->
+            totalArea += columnArea(activeRanges) * (colIdx - lastCol)
+            lastCol = colIdx
             val cornersInColumn = cornerColLookup[colIdx]?.map { it.first }
             if (cornersInColumn != null) {
                 val activeCorners = activeRanges.flatMap { range ->
@@ -123,6 +124,8 @@ object Day18 {
                 }
 
                 activeRanges = noDuplicates.chunked(2).map { it.first()..it.last() }
+            } else {
+                error("no corners in column by key: $colIdx")
             }
         }
         check(activeRanges.isEmpty()) { "active ranges should be empty: $activeRanges, $totalArea" }
