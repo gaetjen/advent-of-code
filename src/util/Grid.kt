@@ -8,8 +8,11 @@ typealias Pos = Pair<Int, Int>
 typealias PosL = Pair<Long, Long>
 
 operator fun Pos.plus(b: Pos) = this.first + b.first to this.second + b.second
+operator fun PosL.minus(b: PosL) = this.first + b.first to this.second + b.second
 operator fun Pos.times(b: Int) = this.first * b to this.second * b
+operator fun PosL.times(b: Long) = this.first * b to this.second * b
 fun Pos.inverse() = this.second to this.first
+fun Pos.toLong() = this.first.toLong() to this.second.toLong()
 
 fun Pos.neighbors(): List<Pos> {
     return Cardinal.entries.map { it.of(this) } + Cardinal.diagonals.map { (one, two) -> one.of(two.of(this)) }
