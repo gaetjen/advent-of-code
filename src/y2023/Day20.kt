@@ -5,36 +5,25 @@ import util.timingStatistics
 import java.util.ArrayDeque
 import java.util.Queue
 
+typealias Pulse = Boolean
+typealias State = Boolean
+
 object Day20 {
     sealed class Module {
         abstract val destinations: List<String>
         abstract val id: String
-
-        //abstract fun process(input: )
         abstract fun computeOutput(signal: Signal): Pulse?
     }
 
     data class FlipFlop(
         override val id: String,
-        var state: State = State.OFF,
+        var state: State = false,
         override val destinations: List<String>
     ) : Module() {
-        enum class State {
-            ON, OFF;
-
-            fun flip(): State = when (this) {
-                ON -> OFF
-                OFF -> ON
-            }
-        }
-
         override fun computeOutput(signal: Signal): Pulse? {
-            if (signal.pulse == Pulse.LOW) {
-                state = state.flip()
-                return when (state) {
-                    State.ON -> Pulse.HIGH
-                    State.OFF -> Pulse.LOW
-                }
+            if (!signal.pulse) {
+                state = !state
+                return state
             }
             return null
         }
@@ -45,13 +34,9 @@ object Day20 {
         val memory: MutableMap<String, Pulse>,
         override val destinations: List<String>
     ) : Module() {
-        override fun computeOutput(signal: Signal): Pulse? {
+        override fun computeOutput(signal: Signal): Pulse {
             memory[signal.source] = signal.pulse
-            return if (memory.values.all { it == Pulse.HIGH }) {
-                Pulse.LOW
-            } else {
-                Pulse.HIGH
-            }
+            return !memory.values.all { it }
         }
     }
 
@@ -59,12 +44,10 @@ object Day20 {
         override val id: String = "broadcaster",
         override val destinations: List<String>
     ) : Module() {
-        override fun computeOutput(signal: Signal): Pulse? {
+        override fun computeOutput(signal: Signal): Pulse {
             return signal.pulse
         }
     }
-
-    enum class Pulse { HIGH, LOW }
 
     data class Signal(
         val pulse: Pulse,
@@ -97,7 +80,7 @@ object Day20 {
         return lowCount.toLong() * highCount.toLong()
     }
 
-    private fun initializeConjunctions(parsed: Map<String, Module>) {
+    private fun initializeConjunctions(parsed: Map<String, Module>): List<String> {
         val inverseMap = parsed.values.flatMap { module ->
             module.destinations.map { it to module.id }
         }.groupBy { it.first }
@@ -107,20 +90,21 @@ object Day20 {
         parsed.values.forEach { module ->
             if (module is Conjunction) {
                 inverseMap[module.id]?.forEach {
-                    module.memory[it] = Pulse.LOW
+                    module.memory[it] = false
                 }
             }
         }
+        return inverseMap[inverseMap["rx"]!!.first()]!!
     }
 
     private fun pushButton(parsed: Map<String, Module>) : Pair<Int, Int>{
         var lowCount = 0
         var highCount = 0
         val signals: Queue<Signal> = ArrayDeque()
-        signals.add(Signal(Pulse.LOW, "button", "broadcaster"))
+        signals.add(Signal(false, "button", "broadcaster"))
         while (signals.isNotEmpty()) {
             val signal = signals.poll()
-            if (signal.pulse == Pulse.LOW) lowCount++ else highCount++
+            if (!signal.pulse) lowCount++ else highCount++
             val module = parsed[signal.target] ?: continue
             val output = module.computeOutput(signal)
             module.destinations.forEach { destination ->
@@ -140,24 +124,31 @@ object Day20 {
     }
 
     fun part2(input: List<String>): Int {
-        val parsed = parse(input)
-        initializeConjunctions(parsed)
-        var buttonPushes = 0
-        while (true) {
-            buttonPushes++
-            if (pushButton2(parsed)) return buttonPushes
-            if (buttonPushes % 1000000 == 0) {
-                println("button pushes: $buttonPushes")
+        var parsed = parse(input)
+        val conjunctionInputs = initializeConjunctions(parsed)
+        println("conjunction inputs: $conjunctionInputs")
+        val inputFirsts = conjunctionInputs.map { toTrack ->
+            parsed = parse(input)
+            initializeConjunctions(parsed)
+            var buttonPushes = 0
+            while (true) {
+                buttonPushes++
+                if (pushButton2(parsed, toTrack, true)) return@map buttonPushes
+                if (buttonPushes % 1000000 == 0) {
+                    println("button pushes: $buttonPushes")
+                }
             }
         }
+        println("input firsts: $inputFirsts") // https://www.wolframalpha.com/input?i=lcm
+        return -1
     }
 
-    private fun pushButton2(parsed: Map<String, Module>) : Boolean {
+    private fun pushButton2(parsed: Map<String, Module>, trackedInput: String, expectedValue: Boolean) : Boolean {
         val signals: Queue<Signal> = ArrayDeque()
-        signals.add(Signal(Pulse.LOW, "button", "broadcaster"))
+        signals.add(Signal(false, "button", "broadcaster"))
         while (signals.isNotEmpty()) {
             val signal = signals.poll()
-            if (signal.pulse == Pulse.LOW && signal.target == "rx") return true
+            if (signal.source == trackedInput && signal.pulse == expectedValue) return true
             val module = parsed[signal.target] ?: continue
             val output = module.computeOutput(signal)
             module.destinations.forEach { destination ->
@@ -191,7 +182,7 @@ fun main() {
     println("------Real------")
     val input = readInput(2023, 20)
     println("Part 1 result: ${Day20.part1(input)}")
-    //println("Part 2 result: ${Day20.part2(input)}")
+    println("Part 2 result: ${Day20.part2(input)}")
     timingStatistics { Day20.part1(input) }
     //timingStatistics { Day20.part2(input) }
 }
