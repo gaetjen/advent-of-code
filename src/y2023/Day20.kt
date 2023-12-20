@@ -1,5 +1,6 @@
 package y2023
 
+import util.product
 import util.readInput
 import util.timingStatistics
 import java.util.ArrayDeque
@@ -123,24 +124,20 @@ object Day20 {
         return lowCount to highCount
     }
 
-    fun part2(input: List<String>): Int {
+    fun part2(input: List<String>): Long {
         var parsed = parse(input)
         val conjunctionInputs = initializeConjunctions(parsed)
-        println("conjunction inputs: $conjunctionInputs")
         val inputFirsts = conjunctionInputs.map { toTrack ->
             parsed = parse(input)
             initializeConjunctions(parsed)
             var buttonPushes = 0
             while (true) {
                 buttonPushes++
-                if (pushButton2(parsed, toTrack, true)) return@map buttonPushes
-                if (buttonPushes % 1000000 == 0) {
-                    println("button pushes: $buttonPushes")
-                }
+                if (pushButton2(parsed, toTrack, true)) break
             }
+            buttonPushes.toLong()
         }
-        println("input firsts: $inputFirsts") // https://www.wolframalpha.com/input?i=lcm
-        return -1
+        return inputFirsts.product()
     }
 
     private fun pushButton2(parsed: Map<String, Module>, trackedInput: String, expectedValue: Boolean) : Boolean {
@@ -184,5 +181,5 @@ fun main() {
     println("Part 1 result: ${Day20.part1(input)}")
     println("Part 2 result: ${Day20.part2(input)}")
     timingStatistics { Day20.part1(input) }
-    //timingStatistics { Day20.part2(input) }
+    timingStatistics { Day20.part2(input) }
 }
