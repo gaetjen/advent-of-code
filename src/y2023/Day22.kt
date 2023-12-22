@@ -32,15 +32,16 @@ object Day22 {
     fun part1(input: List<String>): Int {
         val bricks = parse(input)
         val fallenBricks = fallenBricks(bricks)
+        val brickLookupBottom = fallenBricks.groupBy { it.zRange.first }
+        val brickLookupTop = fallenBricks.groupBy { it.zRange.last }
         val disintegratable = fallenBricks.filter { brick ->
-            val sameColumns = fallenBricks.filter { it.xyOverlap(brick) }
-            val above = sameColumns.filter { brick.zRange.last + 1 == it.zRange.first }
+            val above = (brickLookupBottom[brick.zRange.last + 1] ?: emptyList()).filter { it.xyOverlap(brick) }
             if (above.isEmpty()) {
                 true
             } else {
                 above.all { aboveBrick ->
-                    val sameColumnsAbove = fallenBricks.filter { it.xyOverlap(aboveBrick) }
-                    val below = sameColumnsAbove.filter { aboveBrick.zRange.first - 1 == it.zRange.last }
+                    val below = (brickLookupTop[aboveBrick.zRange.first - 1] ?: emptyList())
+                        .filter { it.xyOverlap(aboveBrick) }
                     below.size >= 2
                 }
             }
