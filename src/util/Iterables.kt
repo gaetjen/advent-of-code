@@ -35,7 +35,7 @@ fun <T> generateTakes(list: List<T>, n: Int) : Sequence<List<T>> = sequence  {
             yield(listOf(it))
         }
     } else {
-        list.dropLast(n).forEachIndexed { index, el ->
+        list.dropLast(n - 1).forEachIndexed { index, el ->
             val tails = generateTakes(list.subList(index + 1, list.size), n - 1)
             tails.forEach {
                 yield(listOf(el) + it)
