@@ -16,8 +16,19 @@ object Day25 {
     fun part1(input: List<String>): Int {
         val edges = parse(input)
         val lookup = edges.groupBy { it.first }.mapValues { (_, v) -> v.map { it.second } }
+        var components = calculateRandomizedConnectedComponents(edges, lookup)
+        while (components.size != 2) {
+            components = calculateRandomizedConnectedComponents(edges, lookup)
+        }
+        return components.first().size * components.last().size
+    }
+
+    private fun calculateRandomizedConnectedComponents(
+        edges: List<Pair<String, String>>,
+        lookup: Map<String, List<String>>
+    ): List<Set<String>> {
         val edgeUseCount = edges.associateWith { 0 }.toMutableMap()
-        val randomStartStop = (lookup.keys.toList().shuffled() + lookup.keys.toList().shuffled()).zipWithNext()
+        val randomStartStop = lookup.keys.toList().shuffled().zipWithNext()
         randomStartStop.forEach { (n1, n2) ->
             shortestPathEdges(n1, n2, lookup).forEach { edge ->
                 edgeUseCount[edge] = edgeUseCount[edge]!! + 1
@@ -33,14 +44,12 @@ object Day25 {
         val cutEdges = consolidatedEdges.entries.sortedByDescending { it.value }.take(3).map { it.key }
         val splitGraph = lookup.toMutableMap()
 
-        cutEdges.forEach {(  n1, n2 )->
+        cutEdges.forEach { (n1, n2) ->
             splitGraph[n1] = splitGraph[n1]!!.filter { it != n2 }
             splitGraph[n2] = splitGraph[n2]!!.filter { it != n1 }
         }
 
-        val (cc1, cc2) = connectedComponents(splitGraph)
-
-        return cc1.size * cc2.size
+        return connectedComponents(splitGraph)
     }
 
     private fun connectedComponents(splitGraph: MutableMap<String, List<String>>): List<Set<String>> {
