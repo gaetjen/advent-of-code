@@ -125,5 +125,5 @@ fun main() {
     println("Part 1 result: ${Day24.part1(input, testRange)}")
     println("Part 2 result: ${Day24.part2(input)}")
     timingStatistics { Day24.part1(input, testRange) }
-    timingStatistics { Day24.part2(input) }
+    timingStatistics(minRuns = 3) { Day24.part2(input) }
 }
