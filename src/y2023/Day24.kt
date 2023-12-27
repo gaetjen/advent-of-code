@@ -1,5 +1,10 @@
 package y2023
 
+import io.ksmt.KContext
+import io.ksmt.expr.KExpr
+import io.ksmt.solver.z3.KZ3Solver
+import io.ksmt.sort.KIntSort
+import io.ksmt.utils.getValue
 import util.generateTakes
 import util.readInput
 import util.timingStatistics
@@ -39,18 +44,17 @@ object Day24 {
         val (p1, v1) = stone1
         val (p2, v2) = stone2
         if (v1.x.toDouble() / v1.y == v2.x.toDouble() / v2.y) {
-            println("parallels: $v1, $v2")
             return null
         }
-        val m2t = v1.x.toBigDecimal() * p1.y.toBigDecimal() + v1.y.toBigDecimal() * p2.x.toBigDecimal() - v1.x.toBigDecimal() * p2.y.toBigDecimal() - p1.x.toBigDecimal() * v1.y.toBigDecimal().setScale(4)
+        val m2t =
+            v1.x.toBigDecimal() * p1.y.toBigDecimal() + v1.y.toBigDecimal() * p2.x.toBigDecimal() - v1.x.toBigDecimal() * p2.y.toBigDecimal() - p1.x.toBigDecimal() * v1.y.toBigDecimal()
+                .setScale(4)
         val m2b = v1.x.toBigDecimal() * v2.y.toBigDecimal() - v2.x.toBigDecimal() * v1.y.toBigDecimal()
         val m2 = m2t.divide(m2b, RoundingMode.DOWN)
-        val m1 = (p2.x.toBigDecimal() + v2.x.toBigDecimal() * m2 - p1.x.toBigDecimal()).setScale(4).divide(v1.x.toBigDecimal(), RoundingMode.DOWN)
+        val m1 = (p2.x.toBigDecimal() + v2.x.toBigDecimal() * m2 - p1.x.toBigDecimal()).setScale(4)
+            .divide(v1.x.toBigDecimal(), RoundingMode.DOWN)
         val x = p1.x.toBigDecimal() + v1.x.toBigDecimal() * m1
         val y = p1.y.toBigDecimal() + v1.y.toBigDecimal() * m1
-        val checkX = p2.x.toBigDecimal() + v2.x.toBigDecimal() * m2
-        val checkY = p2.y.toBigDecimal() + v2.y.toBigDecimal() * m2
-        println("Diffs: ${x - checkX}, ${y - checkY}")
 
         if (m1 < BigDecimal.ZERO || m2 < BigDecimal.ZERO) {
             return null
@@ -59,9 +63,46 @@ object Day24 {
         return x to y
     }
 
-    fun part2(input: List<String>): Long {
+    fun part2(input: List<String>): KExpr<KIntSort> {
         val parsed = parse(input)
-        return 0L
+        val ctx = KContext()
+        val (h1, h2, h3) = parsed.take(3)
+        with(ctx) {
+            val t1 by intSort
+            val t2 by intSort
+            val t3 by intSort
+            val x by intSort
+            val y by intSort
+            val z by intSort
+            val dx by intSort
+            val dy by intSort
+            val dz by intSort
+
+            val constraints = listOf(
+                t1 ge 0.expr,
+                t2 ge 0.expr,
+                t3 ge 0.expr,
+                x + dx * t1 eq h1.first.x.expr + h1.second.x.expr * t1,
+                x + dx * t2 eq h2.first.x.expr + h2.second.x.expr * t2,
+                x + dx * t3 eq h3.first.x.expr + h3.second.x.expr * t3,
+
+                y + dy * t1 eq h1.first.y.expr + h1.second.y.expr * t1,
+                y + dy * t2 eq h2.first.y.expr + h2.second.y.expr * t2,
+                y + dy * t3 eq h3.first.y.expr + h3.second.y.expr * t3,
+
+                z + dz * t1 eq h1.first.z.expr + h1.second.z.expr * t1,
+                z + dz * t2 eq h2.first.z.expr + h2.second.z.expr * t2,
+                z + dz * t3 eq h3.first.z.expr + h3.second.z.expr * t3,
+            ).reduce { acc, expr -> acc and expr }
+
+
+            KZ3Solver(this).use { solver ->
+                solver.assert(constraints)
+                solver.check()
+                val model = solver.model()
+                return model.eval(x) + model.eval(y) + model.eval(z)
+            }
+        }
     }
 }
 
@@ -78,24 +119,11 @@ fun main() {
     println(Day24.part1(testInput, testTestRange))
     println(Day24.part2(testInput))
 
-    val g = listOf(1, 2, 3, 4, 5)
-    generateTakes(g, 2).forEach {
-        println(it)
-    }
-
-    val h = listOf("a", "b")
-    generateTakes(h, 2).forEach {
-        println(it)
-    }
-
     println("------Real------")
     val input = readInput(2023, 24)
     val testRange = 200_000_000_000_000..400_000_000_000_000
     println("Part 1 result: ${Day24.part1(input, testRange)}")
     println("Part 2 result: ${Day24.part2(input)}")
-    //timingStatistics { Day24.part1(input, testRange) }
+    timingStatistics { Day24.part1(input, testRange) }
     timingStatistics { Day24.part2(input) }
-
-    /*val numbers = readInput(2023, 25).map { it.toDouble() }.sorted()
-    println(numbers.take(10).joinToString("\n"))*/
 }
