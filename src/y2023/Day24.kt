@@ -24,13 +24,10 @@ object Day24 {
 
     fun part1(input: List<String>, testArea: LongRange): Int {
         val parsed = parse(input)
-        //println("pairs: ${generateTakes(parsed, 2).count()}")
         val intersects = generateTakes(parsed, 2).filter { (stone1, stone2) ->
-            //println("$stone1, $stone2")
             val pos = intersectsXY(stone1, stone2)
             pos != null && testArea.contains(pos.first) && testArea.contains(pos.second)
         }
-        //intersects.forEach { println(it) }
         return intersects.toList().size
     }
 
@@ -53,20 +50,11 @@ object Day24 {
         val y = p1.y.toBigDecimal() + v1.y.toBigDecimal() * m1
         val checkX = p2.x.toBigDecimal() + v2.x.toBigDecimal() * m2
         val checkY = p2.y.toBigDecimal() + v2.y.toBigDecimal() * m2
-        //check(abs(x - checkX) < 0.00001) { "x mismatch: $x, $checkX" }
-        //check(abs(y - checkY) < 0.00001) { "y mismatch: $y, $checkY, $stone1, $stone2, $m1, $m2" }
         println("Diffs: ${x - checkX}, ${y - checkY}")
 
         if (m1 < BigDecimal.ZERO || m2 < BigDecimal.ZERO) {
-            //println(abs(x - checkX))
-            //println(abs(y - checkY))
-            //println("in past: $m1, $m2")
             return null
         }
-        /*if (abs(x - checkX) > 10) {
-            println("x mismatch: $x, $checkX")
-            return null
-        }*/
 
         return x to y
     }
