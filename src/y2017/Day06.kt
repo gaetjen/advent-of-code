@@ -17,14 +17,7 @@ object Day06 {
                 return steps
             }
             knownStates.add(banks.toList())
-            var toDistribute = banks.max()
-            var idx = banks.indexOf(toDistribute)
-            banks[idx] = 0
-            while (toDistribute > 0) {
-                idx = (idx + 1) % banks.size
-                banks[idx]++
-                toDistribute--
-            }
+            redistribute(banks)
             steps++
         }
     }
@@ -38,15 +31,19 @@ object Day06 {
                 return steps - knownStates[banks]!!
             }
             knownStates[banks] = steps
-            var toDistribute = banks.max()
-            var idx = banks.indexOf(toDistribute)
-            banks[idx] = 0
-            while (toDistribute > 0) {
-                idx = (idx + 1) % banks.size
-                banks[idx]++
-                toDistribute--
-            }
+            redistribute(banks)
             steps++
+        }
+    }
+
+    private fun redistribute(banks: MutableList<Int>) {
+        var toDistribute = banks.max()
+        var idx = banks.indexOf(toDistribute)
+        banks[idx] = 0
+        while (toDistribute > 0) {
+            idx = (idx + 1) % banks.size
+            banks[idx]++
+            toDistribute--
         }
     }
 }
