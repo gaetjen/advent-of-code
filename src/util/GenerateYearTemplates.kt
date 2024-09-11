@@ -3,8 +3,9 @@ package util
 import java.io.File
 
 fun main() {
-    val year = 2016
+    val year = 2017
     val folder = "src/y$year"
+    File(folder).mkdirs()
     val template = readInput("resources/util/template")
     (1..25).forEach { day ->
         val dayString = String.format("%02d", day)
