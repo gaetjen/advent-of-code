@@ -19,7 +19,7 @@ object Day04 {
 
     fun part2(input: List<String>): Long {
         val phrases = parse(input).map { words ->
-            words.map { w -> w.toCharArray().sorted().toString() }
+            words.map { w -> w.toCharArray().sorted() }
         }
         return phrases.count {
             it.distinct().size == it.size
