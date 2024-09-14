@@ -22,7 +22,7 @@ object Day09 {
         }
     }
 
-    fun score(jsonArray: JsonArray, level: Int = 1) : Int {
+    private fun score(jsonArray: JsonArray, level: Int = 1) : Int {
         return level + jsonArray.sumOf { score(it as JsonArray, level + 1) }
     }
 
