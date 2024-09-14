@@ -5,8 +5,6 @@ import util.AbstractMachine
 import util.readInput
 import util.timingStatistics
 
-//typealias Registers = MutableMap<String, Int>
-
 class Registers(
     val map: MutableMap<String, Int>,
     var max: Int

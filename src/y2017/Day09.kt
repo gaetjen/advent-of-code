@@ -1,26 +1,48 @@
 package y2017
 
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import util.readInput
 import util.timingStatistics
 
 object Day09 {
-    private fun parse(input: List<String>): Any {
-        TODO()
+    private fun parse(input: List<String>): JsonArray {
+        val line = input.first()
+            .replace(Regex("!."), "")
+            .replace(Regex("<.*?>"), "")
+            .replace("{", "[")
+            .replace("}", "]")
+            .replace("[,", "[")
+            .replace(",]", "]")
+        val json = Json.parseToJsonElement(line)
+        return if (json is JsonArray) {
+            json
+        } else {
+            throw IllegalArgumentException()
+        }
     }
 
-    fun part1(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+    fun score(jsonArray: JsonArray, level: Int = 1) : Int {
+        return level + jsonArray.sumOf { score(it as JsonArray, level + 1) }
     }
 
-    fun part2(input: List<String>): Long {
+    fun part1(input: List<String>): Int {
         val parsed = parse(input)
-        return 0L
+        return score(parsed)
+    }
+
+    fun part2(input: List<String>): Int {
+        val cancelled = input.first()
+            .replace(Regex("!."), "")
+        val clean = cancelled
+            .replace(Regex("<.*?>"), "<>")
+        return cancelled.length - clean.length
     }
 }
 
 fun main() {
     val testInput = """
+        {{{},{},{{}}}}
     """.trimIndent().split("\n")
     println("------Tests------")
     println(Day09.part1(testInput))
