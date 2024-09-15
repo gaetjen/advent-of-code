@@ -4,13 +4,20 @@ import util.readInput
 import util.timingStatistics
 
 object Day13 {
-    private fun parse(input: List<String>): Any {
-        TODO()
+    private fun parse(input: List<String>): Map<Int, Int> {
+        return input.associate {
+            val (layer, depth) = it.split(": ")
+            layer.toInt() to depth.toInt()
+        }
     }
 
-    fun part1(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+    fun part1(input: List<String>): Int {
+        val wall = parse(input)
+        return wall.filter { (layer, depth) ->
+            (layer % ((depth-1) * 2)== 0)
+        }.map { (layer, depth) ->
+            layer * depth
+        }.sum()
     }
 
     fun part2(input: List<String>): Long {
@@ -21,6 +28,10 @@ object Day13 {
 
 fun main() {
     val testInput = """
+        0: 3
+        1: 2
+        4: 4
+        6: 4
     """.trimIndent().split("\n")
     println("------Tests------")
     println(Day13.part1(testInput))
