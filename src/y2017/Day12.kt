@@ -4,13 +4,22 @@ import util.readInput
 import util.timingStatistics
 
 object Day12 {
-    private fun parse(input: List<String>): Any {
-        TODO()
+    private fun parse(input: List<String>): Map<Int, List<Int>> {
+        return input.associate { ln ->
+            val (k, es) = ln.split(" <-> ")
+            k.toInt() to es.split(", ").map { it.toInt() }
+        }
     }
 
-    fun part1(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+    fun part1(input: List<String>): Int {
+        val edges = parse(input)
+        val visited = mutableSetOf<Int>()
+        var frontier = setOf(0)
+        while (frontier.isNotEmpty()) {
+            visited.addAll(frontier)
+            frontier = frontier.map { edges[it]!! }.flatten().toSet() - visited
+        }
+        return visited.size
     }
 
     fun part2(input: List<String>): Long {
@@ -21,6 +30,13 @@ object Day12 {
 
 fun main() {
     val testInput = """
+        0 <-> 2
+        1 <-> 1
+        2 <-> 0, 3, 4
+        3 <-> 2, 4
+        4 <-> 2, 3, 6
+        5 <-> 6
+        6 <-> 4, 5
     """.trimIndent().split("\n")
     println("------Tests------")
     println(Day12.part1(testInput))
