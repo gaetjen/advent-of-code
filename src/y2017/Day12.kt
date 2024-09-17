@@ -22,9 +22,21 @@ object Day12 {
         return visited.size
     }
 
-    fun part2(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+    fun part2(input: List<String>): Int {
+        val edges = parse(input)
+        val nodes = edges.keys
+        val visited = mutableSetOf<Int>()
+        val seeds = mutableSetOf<Int>()
+        while (visited.size != nodes.size) {
+            val currentSeed = (nodes - visited).first()
+            seeds.add(currentSeed)
+            var frontier = setOf(currentSeed)
+            while (frontier.isNotEmpty()) {
+                visited.addAll(frontier)
+                frontier = frontier.map { edges[it]!! }.flatten().toSet() - visited
+            }
+        }
+        return seeds.size
     }
 }
 
