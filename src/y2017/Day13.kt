@@ -14,15 +14,21 @@ object Day13 {
     fun part1(input: List<String>): Int {
         val wall = parse(input)
         return wall.filter { (layer, depth) ->
-            (layer % ((depth-1) * 2)== 0)
+            (layer % ((depth - 1) * 2) == 0)
         }.map { (layer, depth) ->
             layer * depth
         }.sum()
     }
 
-    fun part2(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+    fun part2(input: List<String>): Int {
+        val wall = parse(input)
+        var result = 0
+        while (true) {
+            if (wall.all { (layer, depth) -> (layer + result) % ((depth - 1) * 2) != 0 }) {
+                return result
+            }
+            result++
+        }
     }
 }
 
