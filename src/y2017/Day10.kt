@@ -2,6 +2,7 @@ package y2017
 
 import util.readInput
 import util.timingStatistics
+import kotlin.experimental.xor
 
 object Day10 {
     private fun parse(input: List<String>): List<Int> {
@@ -22,11 +23,11 @@ object Day10 {
         return list[0] * list[1]
     }
 
-    private fun twist(
-        list: List<Int>,
+    private fun <T> twist(
+        list: List<T>,
         length: Int,
         start: Int
-    ): List<Int> {
+    ): List<T> {
         val elements = ((list + list).subList(start, start + length)).reversed()
         val rtn = list.toMutableList()
         for ((idx, n) in (start until start + length).zip(elements)) {
@@ -36,17 +37,23 @@ object Day10 {
     }
 
     fun part2(input: List<String>): String {
-        val lengths = input.first().map { it.code } + listOf(17, 31, 73, 47, 23)
+        val line = input.first()
+        val list = hash(line)
+        return list.joinToString(separator = "") { "%02x".format(it) }
+    }
+
+    fun hash(line: String): List<Byte> {
+        val lengths = line.map { it.code } + listOf(17, 31, 73, 47, 23)
         val all = List(64) { lengths }.flatten()
-        var list = List(256) { it }
+        var list = List(256) { it.toByte() }
         var position = 0
         for ((skipSize, l) in all.withIndex()) {
             list = twist(list, l, position)
             position = (position + l + skipSize) % 256
         }
         return list.chunked(16).map { block ->
-            block.reduce { acc, i -> acc.xor(i) }
-        }.joinToString(separator = "") { "%02x".format(it) }
+            block.reduce { acc, i -> acc.xor(i)}
+        }
     }
 }
 

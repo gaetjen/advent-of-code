@@ -25,18 +25,29 @@ object Day12 {
     fun part2(input: List<String>): Int {
         val edges = parse(input)
         val nodes = edges.keys
-        val visited = mutableSetOf<Int>()
-        val seeds = mutableSetOf<Int>()
+        val components = connectedComponents(nodes) {
+            edges[it]!!
+        }
+        return components.size
+    }
+
+    fun <T> connectedComponents(
+        nodes: Set<T>,
+        neighbors: (T) -> Iterable<T>
+    ): Set<Set<T>> {
+        val visited = mutableSetOf<T>()
+        val components = mutableSetOf<Set<T>>()
         while (visited.size != nodes.size) {
-            val currentSeed = (nodes - visited).first()
-            seeds.add(currentSeed)
-            var frontier = setOf(currentSeed)
+            val currentSet = mutableSetOf((nodes - visited).first())
+            components.add(currentSet)
+            var frontier = currentSet.toMutableSet()
             while (frontier.isNotEmpty()) {
                 visited.addAll(frontier)
-                frontier = frontier.map { edges[it]!! }.flatten().toSet() - visited
+                currentSet.addAll(frontier)
+                frontier = (frontier.map { neighbors(it) }.flatten().toSet() - visited).toMutableSet()
             }
         }
-        return seeds.size
+        return components
     }
 }
 
