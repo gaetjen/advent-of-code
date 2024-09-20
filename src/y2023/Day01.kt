@@ -27,7 +27,7 @@ val digitStrings = mapOf(
 
 val reverses = digitStrings.mapKeys { it.key.reversed() }
 
-val re = Regex(
+val totalRegex = Regex(
     digitStrings.keys.joinToString(separator = "|")
 )
 
@@ -35,7 +35,7 @@ val reReverse = Regex(
     reverses.keys.joinToString(separator = "|")
 )
 
-val nonConsumingRe = Regex("(?=${re.pattern})")
+val nonConsumingRe = Regex("(?=${totalRegex.pattern})")
 
 object Day01 {
     private fun parse(input: List<String>): List<Int> {
@@ -53,8 +53,8 @@ object Day01 {
     private fun parse2(input: List<String>): List<Int> {
         return input.map { line ->
             val matches = nonConsumingRe.findAll(line)
-            val first = re.find(line, matches.first().range.first)
-            val last = re.find(line, matches.last().range.first)
+            val first = totalRegex.find(line, matches.first().range.first)
+            val last = totalRegex.find(line, matches.last().range.first)
             digitStrings[first?.value]!! * 10 + digitStrings[last?.value]!!
         }
     }
@@ -71,7 +71,7 @@ object Day01 {
 
     private fun parseReverse(input: List<String>): List<Int> {
         return input.map { line ->
-            val matchFirst = re.find(line)
+            val matchFirst = totalRegex.find(line)
             val matchLast = reReverse.find(line.reversed())
             digitStrings[matchFirst?.value]!! * 10 + reverses[matchLast?.value]!!
         }
@@ -80,7 +80,7 @@ object Day01 {
 
 fun main() {
     val x = "3oneight"
-    val matches = re.findAll(x)
+    val matches = totalRegex.findAll(x)
     matches.forEach { println(it.value) }
     val testInput = """
         1abc2
