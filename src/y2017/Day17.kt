@@ -3,8 +3,6 @@ package y2017
 import util.timingStatistics
 
 object Day17 {
-
-
     fun part1(input: Int): Int {
         val buffer = mutableListOf(0)
         var iteration = 0

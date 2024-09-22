@@ -6,7 +6,7 @@ abstract class AbstractMachine<S> {
     abstract var state: S
 
     fun run(log: Boolean = false): S {
-        while (instructionIdx < instructions.size) {
+        while (instructionIdx in instructions.indices) {
             step()
             if (log) {
                 println(state)
