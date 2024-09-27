@@ -1,19 +1,50 @@
 package y2017
 
-import util.AbstractInstruction
-import util.AbstractMachine
 import util.readInput
-import util.timingStatistics
+
+abstract class SuspendingMachine<S> {
+    abstract val instructions: List<SuspendingInstruction<S>>
+    private var instructionIdx: Int = 0
+    abstract var state: S
+
+    suspend fun SequenceScope<Long>.run(log: Boolean = false): S {
+        while (instructionIdx in instructions.indices) {
+            step()
+            if (log) {
+                println(state)
+            }
+        }
+        return state
+    }
+
+    suspend fun SequenceScope<Long>.step() {
+        val stepResult = with(instructions[instructionIdx]) {
+            executeOn(state, instructionIdx)
+        }
+        state = stepResult.first
+        instructionIdx = stepResult.second
+    }
+}
+
+abstract class SuspendingInstruction<S> {
+    abstract suspend fun SequenceScope<Long>.executeOn(
+        state: S,
+        idx: Int
+    ): Pair<S, Int>
+}
 
 data class DuetMachineState(
     val registers: MutableMap<Char, Long> = mutableMapOf(),
-    val lastSound: Long = 0
+    val lastSound: Long = 0,
+    var partner: Iterator<Long>? = null,
+    var sends: MutableList<Long>? = null,
+    var receives: MutableList<Long>? = null
 )
 
 class DuetMachine(
     override val instructions: List<DuetInstruction>,
     override var state: DuetMachineState,
-) : AbstractMachine<DuetMachineState>()
+) : SuspendingMachine<DuetMachineState>()
 
 /**
  * snd X plays a sound with a frequency equal to the value of X.
@@ -25,7 +56,7 @@ class DuetMachine(
  * jgz X Y jumps with an offset of the value of Y, but only if the value of X is greater than zero. (An offset of 2 skips the next instruction, an offset of -1 jumps to the previous instruction, and so on.)
  */
 
-sealed class DuetInstruction : AbstractInstruction<DuetMachineState>() {
+sealed class DuetInstruction : SuspendingInstruction<DuetMachineState>() {
     companion object {
         fun parse(string: String): DuetInstruction {
             val els = string.split(" ")
@@ -38,6 +69,14 @@ sealed class DuetInstruction : AbstractInstruction<DuetMachineState>() {
                 "rcv" -> Recover(Operand.fromString(els[1]))
                 "jgz" -> Jgz(Operand.fromString(els[1]), Operand.fromString(els[2]))
                 else -> error("invalid instruction")
+            }
+        }
+
+        fun parsePart2(string: String): DuetInstruction {
+            return when {
+                string.startsWith("snd") -> Send(Operand.fromString(string.substringAfter(" ")))
+                string.startsWith("rcv") -> Receive(Operand.Register(string.substringAfter(" ").first()))
+                else -> parse(string)
             }
         }
     }
@@ -66,7 +105,7 @@ sealed class DuetInstruction : AbstractInstruction<DuetMachineState>() {
     }
 
     data class Sound(val op: Operand) : DuetInstruction() {
-        override fun executeOn(
+        override suspend fun SequenceScope<Long>.executeOn(
             state: DuetMachineState,
             idx: Int
         ): Pair<DuetMachineState, Int> {
@@ -77,7 +116,7 @@ sealed class DuetInstruction : AbstractInstruction<DuetMachineState>() {
     }
 
     data class Recover(val op: Operand) : DuetInstruction() {
-        override fun executeOn(
+        override suspend fun SequenceScope<Long>.executeOn(
             state: DuetMachineState,
             idx: Int
         ): Pair<DuetMachineState, Int> {
@@ -89,11 +128,55 @@ sealed class DuetInstruction : AbstractInstruction<DuetMachineState>() {
         }
     }
 
+    data class Send(val op: Operand) : DuetInstruction() {
+        override suspend fun SequenceScope<Long>.executeOn(
+            state: DuetMachineState,
+            idx: Int
+        ): Pair<DuetMachineState, Int> {
+            return if (state.sends != null) {
+                //println("sending -> value=${op[state]}, current queue: ${state.sends?.size}")
+                state.sends!!.add(op[state])
+                state to idx + 1
+            } else {
+                println("sending <-")
+                yield(op[state])
+                state to idx + 1
+            }
+        }
+
+    }
+
+    data class Receive(val op: Operand.Register) : DuetInstruction() {
+        override suspend fun SequenceScope<Long>.executeOn(
+            state: DuetMachineState,
+            idx: Int
+        ): Pair<DuetMachineState, Int> {
+            return if (state.partner != null) {
+                if (state.partner!!.hasNext()) {
+                    state.registers[op.name] = state.partner!!.next()
+                    state to idx + 1
+                } else {
+                    println("no more values in sub")
+                    state to -1
+                }
+            } else {
+                if (state.receives?.isNotEmpty() == true) {
+                    println("receiving from main, queue: ${state.receives?.size}")
+                    state.registers[op.name] = state.receives!!.removeFirst()
+                    state to idx + 1
+                } else {
+                    println("no more values from main")
+                    state to -1
+                }
+            }
+        }
+    }
+
     data class Set(
         val target: Operand.Register,
         val op: Operand
     ) : DuetInstruction() {
-        override fun executeOn(
+        override suspend fun SequenceScope<Long>.executeOn(
             state: DuetMachineState,
             idx: Int
         ): Pair<DuetMachineState, Int> {
@@ -106,7 +189,7 @@ sealed class DuetInstruction : AbstractInstruction<DuetMachineState>() {
         val target: Operand.Register,
         val op: Operand
     ) : DuetInstruction() {
-        override fun executeOn(
+        override suspend fun SequenceScope<Long>.executeOn(
             state: DuetMachineState,
             idx: Int
         ): Pair<DuetMachineState, Int> {
@@ -119,7 +202,7 @@ sealed class DuetInstruction : AbstractInstruction<DuetMachineState>() {
         val target: Operand.Register,
         val op: Operand
     ) : DuetInstruction() {
-        override fun executeOn(
+        override suspend fun SequenceScope<Long>.executeOn(
             state: DuetMachineState,
             idx: Int
         ): Pair<DuetMachineState, Int> {
@@ -132,7 +215,7 @@ sealed class DuetInstruction : AbstractInstruction<DuetMachineState>() {
         val target: Operand.Register,
         val op: Operand
     ) : DuetInstruction() {
-        override fun executeOn(
+        override suspend fun SequenceScope<Long>.executeOn(
             state: DuetMachineState,
             idx: Int
         ): Pair<DuetMachineState, Int> {
@@ -145,7 +228,7 @@ sealed class DuetInstruction : AbstractInstruction<DuetMachineState>() {
         val cmp: Operand,
         val offset: Operand
     ) : DuetInstruction() {
-        override fun executeOn(
+        override suspend fun SequenceScope<Long>.executeOn(
             state: DuetMachineState,
             idx: Int
         ): Pair<DuetMachineState, Int> {
@@ -165,15 +248,48 @@ object Day18 {
         }
     }
 
+    private fun parse2(input: List<String>): List<DuetInstruction> {
+        return input.map {
+            DuetInstruction.parsePart2(it)
+        }
+    }
+
     fun part1(input: List<String>): Long {
         val parsed = parse(input)
         val machine = DuetMachine(parsed, DuetMachineState())
-        return machine.run().lastSound
+        return sequence {
+            with(machine) {
+                yield(run().lastSound)
+            }
+        }.last()
     }
 
     fun part2(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+        val parsed = parse2(input)
+        val sendList = mutableListOf<Long>()
+        val machineState0 = DuetMachineState(
+            registers = mutableMapOf('p' to 0),
+            sends = sendList
+        )
+        val machineState1 = DuetMachineState(
+            registers = mutableMapOf('p' to 1),
+            receives = sendList
+        )
+        val machine1Sequence = sequence {
+            with(DuetMachine(parsed, machineState1)) {
+                run()
+            }
+        }
+        machineState0.partner = machine1Sequence.iterator()
+        val machine = DuetMachine(parsed, machineState0)
+        val x = sequence {
+            with(machine) {
+                run(log = false)
+            }
+            yield(123L)
+        }
+        return x.iterator().next()
+        //return 0L
     }
 }
 
@@ -200,13 +316,13 @@ fun main() {
         rcv b
         rcv c
         rcv d
-    """.trimIndent()
-    println(Day18.part2(testInput))
+    """.trimIndent().split("\n")
+    //println(Day18.part2(testInput2))
 
     println("------Real------")
     val input = readInput(2017, 18)
     println("Part 1 result: ${Day18.part1(input)}")
     println("Part 2 result: ${Day18.part2(input)}")
     //timingStatistics { Day18.part1(input) }
-    timingStatistics { Day18.part2(input) }
+    //timingStatistics { Day18.part2(input) }
 }
