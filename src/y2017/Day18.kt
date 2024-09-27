@@ -284,8 +284,7 @@ object Day18 {
             with(machine) {
                 run(log = false)
             }
-            yield(123L)
-        }.iterator().next()
+        }.iterator().hasNext()
         return result
     }
 }
