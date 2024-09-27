@@ -1,6 +1,7 @@
 package y2017
 
 import util.readInput
+import util.timingStatistics
 
 abstract class SuspendingMachine<S> {
     abstract val instructions: List<SuspendingInstruction<S>>
@@ -134,13 +135,12 @@ sealed class DuetInstruction : SuspendingInstruction<DuetMachineState>() {
             idx: Int
         ): Pair<DuetMachineState, Int> {
             return if (state.sends != null) {
-                //println("sending -> value=${op[state]}, current queue: ${state.sends?.size}")
                 state.sends!!.add(op[state])
                 state to idx + 1
             } else {
-                println("sending <-")
                 yield(op[state])
-                state to idx + 1
+                // why create a new attribute when we have a perfectly good one lying around unused?
+                state.copy(lastSound = state.lastSound + 1) to idx + 1
             }
         }
 
@@ -156,16 +156,13 @@ sealed class DuetInstruction : SuspendingInstruction<DuetMachineState>() {
                     state.registers[op.name] = state.partner!!.next()
                     state to idx + 1
                 } else {
-                    println("no more values in sub")
                     state to -1
                 }
             } else {
                 if (state.receives?.isNotEmpty() == true) {
-                    println("receiving from main, queue: ${state.receives?.size}")
                     state.registers[op.name] = state.receives!!.removeFirst()
                     state to idx + 1
                 } else {
-                    println("no more values from main")
                     state to -1
                 }
             }
@@ -275,21 +272,21 @@ object Day18 {
             registers = mutableMapOf('p' to 1),
             receives = sendList
         )
+        var result = 0L
         val machine1Sequence = sequence {
             with(DuetMachine(parsed, machineState1)) {
-                run()
+                result = run().lastSound
             }
         }
         machineState0.partner = machine1Sequence.iterator()
         val machine = DuetMachine(parsed, machineState0)
-        val x = sequence {
+        sequence {
             with(machine) {
                 run(log = false)
             }
             yield(123L)
-        }
-        return x.iterator().next()
-        //return 0L
+        }.iterator().next()
+        return result
     }
 }
 
@@ -317,12 +314,12 @@ fun main() {
         rcv c
         rcv d
     """.trimIndent().split("\n")
-    //println(Day18.part2(testInput2))
+    println(Day18.part2(testInput2))
 
     println("------Real------")
     val input = readInput(2017, 18)
     println("Part 1 result: ${Day18.part1(input)}")
     println("Part 2 result: ${Day18.part2(input)}")
-    //timingStatistics { Day18.part1(input) }
-    //timingStatistics { Day18.part2(input) }
+    timingStatistics { Day18.part1(input) }
+    timingStatistics { Day18.part2(input) }
 }
