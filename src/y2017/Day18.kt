@@ -39,7 +39,8 @@ data class DuetMachineState(
     val lastSound: Long = 0,
     var partner: Iterator<Long>? = null,
     var sends: MutableList<Long>? = null,
-    var receives: MutableList<Long>? = null
+    var receives: MutableList<Long>? = null,
+    var mulCounter: Int = 0
 )
 
 class DuetMachine(
@@ -65,10 +66,12 @@ sealed class DuetInstruction : SuspendingInstruction<DuetMachineState>() {
                 "snd" -> Sound(Operand.fromString(els[1]))
                 "set" -> Set(Operand.Register(els[1].first()), Operand.fromString(els[2]))
                 "add" -> Add(Operand.Register(els[1].first()), Operand.fromString(els[2]))
+                "sub" -> Sub(Operand.Register(els[1].first()), Operand.fromString(els[2]))
                 "mul" -> Mul(Operand.Register(els[1].first()), Operand.fromString(els[2]))
                 "mod" -> Mod(Operand.Register(els[1].first()), Operand.fromString(els[2]))
                 "rcv" -> Recover(Operand.fromString(els[1]))
                 "jgz" -> Jgz(Operand.fromString(els[1]), Operand.fromString(els[2]))
+                "jnz" -> Jnz(Operand.fromString(els[1]), Operand.fromString(els[2]))
                 else -> error("invalid instruction")
             }
         }
@@ -204,6 +207,7 @@ sealed class DuetInstruction : SuspendingInstruction<DuetMachineState>() {
             idx: Int
         ): Pair<DuetMachineState, Int> {
             state.registers[target.name] = op[state] * (state.registers[target.name] ?: 0)
+            state.mulCounter++
             return state to idx + 1
         }
     }
@@ -236,10 +240,39 @@ sealed class DuetInstruction : SuspendingInstruction<DuetMachineState>() {
             }
         }
     }
+
+    data class Sub(
+        val target: Operand.Register,
+        val op: Operand
+    ): DuetInstruction() {
+        override suspend fun SequenceScope<Long>.executeOn(
+            state: DuetMachineState,
+            idx: Int
+        ): Pair<DuetMachineState, Int> {
+            state.registers[target.name] = (state.registers[target.name] ?: 0) - op[state]
+            return state to idx + 1
+        }
+    }
+
+    data class Jnz(
+        val cmp: Operand,
+        val offset: Operand
+    ) : DuetInstruction() {
+        override suspend fun SequenceScope<Long>.executeOn(
+            state: DuetMachineState,
+            idx: Int
+        ): Pair<DuetMachineState, Int> {
+            return if (cmp[state] != 0L) {
+                state to idx + offset[state].toInt()
+            } else {
+                state to idx + 1
+            }
+        }
+    }
 }
 
 object Day18 {
-    private fun parse(input: List<String>): List<DuetInstruction> {
+    fun parse(input: List<String>): List<DuetInstruction> {
         return input.map {
             DuetInstruction.parse(it)
         }

@@ -4,28 +4,23 @@ import util.readInput
 import util.timingStatistics
 
 object Day23 {
-    private fun parse(input: List<String>): Any {
-        TODO()
-    }
-
-    fun part1(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+    fun part1(input: List<String>): Number {
+        val parsed = Day18.parse(input)
+        val machine = DuetMachine(parsed, DuetMachineState())
+        return sequence {
+            with(machine) {
+                yield(run().mulCounter)
+            }
+        }.last()
     }
 
     fun part2(input: List<String>): Long {
-        val parsed = parse(input)
+        //val parsed = parse(input)
         return 0L
     }
 }
 
 fun main() {
-    val testInput = """
-    """.trimIndent().split("\n")
-    println("------Tests------")
-    println(Day23.part1(testInput))
-    println(Day23.part2(testInput))
-
     println("------Real------")
     val input = readInput(2017, 23)
     println("Part 1 result: ${Day23.part1(input)}")
