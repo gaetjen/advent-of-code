@@ -34,6 +34,8 @@ fun readInput(year: Int, day: Int): List<String> {
         try {
             val response = client.newCall(request).execute()
             val body = response.body!!.string()
+            val dir = File("src", "resources/$year")
+            if (!dir.exists()) dir.mkdirs()
             file.writeText(body)
             body.lines()
             readInput(year, day)

@@ -3,7 +3,7 @@ package util
 import java.io.File
 
 fun main() {
-    val year = 2017
+    val year = 2018
     val folder = "src/y$year"
     File(folder).mkdirs()
     val template = readInput("resources/util/template")
