@@ -4,23 +4,41 @@ import util.readInput
 import util.timingStatistics
 
 object Day05 {
-    private fun parse(input: List<String>): Any {
-        TODO()
+    fun part1(input: List<String>): Int {
+        val parsed = input.first()
+        return shrink(parsed).length
     }
 
-    fun part1(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+    private fun shrink(parsed: String): String {
+        var shrunk = parsed
+        while (true) {
+            val shrunkEven = shrunk.chunked(2).filter { !reacts(it) }.joinToString("")
+            val newShrunk = shrunkEven.first() + shrunkEven.drop(1).chunked(2).filter { !reacts(it) }.joinToString("")
+            if (shrunk == newShrunk) {
+                return shrunk
+            } else {
+                shrunk = newShrunk
+            }
+        }
     }
 
-    fun part2(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+    private fun reacts(str: String) : Boolean {
+        if (str.length == 1) return false
+        return str[0].uppercase() == str[1].uppercase() && str[0] != str[1]
+    }
+
+    fun part2(input: List<String>): Int {
+        val parsed = input.first()
+        val preShrunk = shrink(parsed)
+        return ('a'..'z').minOf { c ->
+            shrink(preShrunk.replace("$c", "", ignoreCase = true)).length
+        }
     }
 }
 
 fun main() {
     val testInput = """
+        dabAcCaCBAcCcaDA
     """.trimIndent().split("\n")
     println("------Tests------")
     println(Day05.part1(testInput))
