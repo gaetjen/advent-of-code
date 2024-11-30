@@ -8,31 +8,68 @@ data class Tree(
     val metaData: List<Int>
 ) {
     companion object {
-        fun fromList(list: List<Int>): Tree {
-            return if (list.first() == 0) {
-                Tree(listOf(), list.drop(2))
+        fun fromList(list: List<Int>): Pair<Tree, List<Int>> {
+            require(list.isNotEmpty())
+            val (childCount, metadataCount) = list
+            return if (childCount == 0) {
+                Tree(
+                    listOf(),
+                    list.drop(2).take(metadataCount)
+                ) to list.drop(2 + metadataCount)
             } else {
-                TODO()
+                val (children, tail) = children(childCount, list.drop(2))
+                Tree(
+                    children,
+                    tail.take(metadataCount)
+                ) to tail.drop(metadataCount)
             }
+        }
+
+        fun children(
+            n: Int,
+            list: List<Int>
+        ): Pair<List<Tree>, List<Int>> {
+            require(n > 0)
+            var remaining = list
+            val result = (1..n).map {
+                val foo = fromList(remaining)
+                remaining = foo.second
+                foo.first
+            }
+            return result to remaining
+        }
+    }
+
+    fun allMetaData(): List<Int> {
+        return metaData + children.flatMap { it.allMetaData() }
+    }
+
+    fun value(): Int {
+        return if (children.isEmpty()) {
+            metaData.sum()
+        } else {
+            metaData
+                .filter { it in 1..(children.size) }
+                .sumOf { children[it - 1].value() }
         }
     }
 }
 
 object Day08 {
-    private fun parse(input: List<String>): Any {
+    private fun parse(input: List<String>): Tree {
         val inputNumbers = input.first().split(" ").map { it.toInt() }
 
-        return Unit
+        return Tree.fromList(inputNumbers).first
     }
 
-    fun part1(input: List<String>): Long {
+    fun part1(input: List<String>): Int {
         val parsed = parse(input)
-        return 0L
+        return parsed.allMetaData().sum()
     }
 
-    fun part2(input: List<String>): Long {
+    fun part2(input: List<String>): Int {
         val parsed = parse(input)
-        return 0L
+        return parsed.value()
     }
 }
 

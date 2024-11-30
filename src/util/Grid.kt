@@ -14,10 +14,16 @@ operator fun PosL.times(b: Long) = this.first * b to this.second * b
 fun Pos.inverse() = this.second to this.first
 fun Pos.toLong() = this.first.toLong() to this.second.toLong()
 
+/**
+ * 8-neighborhood
+ */
 fun Pos.neighbors(): List<Pos> {
     return Cardinal.entries.map { it.of(this) } + Cardinal.diagonals.map { (one, two) -> one.of(two.of(this)) }
 }
 
+/**
+ * 4-neighborhood
+ */
 fun Pos.neighborsManhattan(): List<Pos> {
     return Cardinal.entries.map { it.of(this) }
 }
@@ -45,6 +51,9 @@ fun <T> getRange(grid: List<List<T>>, startRow: Int, startCol: Int, stopRow: Int
     }.flatten()
 }
 
+/**
+ * row and column numbers, equivalent to text grid
+ */
 enum class Cardinal(val relativePos: Pos) {
     NORTH(-1 to 0),
     EAST(0 to 1),
@@ -80,6 +89,9 @@ enum class Turn {
     }
 }
 
+/**
+ * cartesian x and y coordinates, origin at bottom left
+ */
 enum class Direction {
     UP, RIGHT, DOWN, LEFT;
 
