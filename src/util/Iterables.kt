@@ -2,6 +2,8 @@ package util
 
 /**
  * Splits a list into sublists where the predicate is true, similar to String.split.
+ * @param matchInPost if true, the matching element is included in the sublist that follows it
+ * @param matchInPre if true, the matching element is included in the sublist that precedes it
  */
 fun <T> List<T>.split(matchInPost: Boolean = false, matchInPre: Boolean = false, predicate: (T) -> Boolean): List<List<T>> {
     val idx = this.indexOfFirst(predicate)
