@@ -44,15 +44,18 @@ object Day04 {
 
     fun part1(grid: List<String>): Int {
         val variants = allDirections(grid)
-        return variants.flatten().sumOf { countWords(it, "XMAS") }
+        return variants.flatten().sumOf { countWords(it) }
     }
 
+
+    private const val TO_FIND = "XMAS"
+    private const val TO_FIND_REVERSED = "SAMX"
+
     private fun countWords(
-        line: String,
-        toFind: String
+        line: String
     ): Int {
-        val candidates = line.windowed(toFind.length, step = 1)
-        return candidates.count { it == toFind } + candidates.count { it == toFind.reversed() }
+        return line.windowed(TO_FIND.length, step = 1)
+            .count { it == TO_FIND || it == TO_FIND_REVERSED }
     }
 
     fun part2(input: List<String>): Int {
@@ -89,7 +92,7 @@ fun main() {
     println("------Real------")
     val input = readInput(2024, 4)
     println("Part 1 result: ${Day04.part1(input)}")
-    println("Part 2 result: ${Day04.part2(input)}")
+    //println("Part 2 result: ${Day04.part2(input)}")
     timingStatistics { Day04.part1(input) }
-    timingStatistics { Day04.part2(input) }
+    //timingStatistics { Day04.part2(input) }
 }
