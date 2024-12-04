@@ -4,7 +4,6 @@ import util.Cardinal
 import util.getRange
 import util.readInput
 import util.timingStatistics
-import util.transpose
 
 object Day04 {
 
@@ -37,8 +36,7 @@ object Day04 {
         val variants = listOf(
             input,
             diagonalsNE,
-            // verticals
-            input.map { it.toList() }.transpose().map { it.joinToString(separator = "") },
+            rotated,
             diagonalsSE,
         )
         return variants
