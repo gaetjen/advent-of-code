@@ -58,16 +58,20 @@ object Day04 {
             .count { it == TO_FIND || it == TO_FIND_REVERSED }
     }
 
+
+    private val rePart2 = Regex("(M.M.A.S.S)|(M.S.A.M.S)|(S.M.A.S.M)|(S.S.A.M.M)")
     fun part2(input: List<String>): Int {
         val grid = input.map { it.toList() }
         val stuff = (0..grid.size - 3).flatMap { r ->
             (0..grid.size - 3).map { c ->
-                getRange(grid, r, c, r + 2, c + 2).joinToString(separator = "")
+                val x = getRange(grid, r, c, r + 2, c + 2)
+                buildString {
+                    x.forEach { append(it) }
+                }
             }
         }
-        val re = Regex("(M.M.A.S.S)|(M.S.A.M.S)|(S.M.A.S.M)|(S.S.A.M.M)")
         return stuff.count {
-            re.matches(it)
+            rePart2.matches(it)
         }
     }
 }
@@ -92,7 +96,7 @@ fun main() {
     println("------Real------")
     val input = readInput(2024, 4)
     println("Part 1 result: ${Day04.part1(input)}")
-    //println("Part 2 result: ${Day04.part2(input)}")
+    println("Part 2 result: ${Day04.part2(input)}")
     timingStatistics { Day04.part1(input) }
-    //timingStatistics { Day04.part2(input) }
+    timingStatistics { Day04.part2(input) }
 }

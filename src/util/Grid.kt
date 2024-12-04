@@ -44,11 +44,11 @@ fun <T> getRow(grid: List<List<T>>, rowIdx: Int) = grid[rowIdx]
 fun <T> getCol(grid: List<List<T>>, colIdx: Int) = grid.map { it[colIdx] }
 
 fun <T> getRange(grid: List<List<T>>, startRow: Int, startCol: Int, stopRow: Int, stopCol: Int) : List<T> {
-    return (startRow..stopRow).map { x ->
+    return (startRow..stopRow).flatMap { x ->
         (startCol..stopCol).map { y ->
             grid[x to y]
         }
-    }.flatten()
+    }
 }
 
 /**
