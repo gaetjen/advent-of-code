@@ -20,6 +20,7 @@ object Day21 {
             inputGrid.reversed(),
             inputGrid.map { it.reversed() },
             inputGrid.reversed().map { it.reversed() },
+            // rotated 90 CCW
             (inputGrid.indices.reversed()).map { col -> inputGrid.indices.map { row -> inputGrid[row][col] }.joinToString("") },
             (inputGrid.indices).map { col -> inputGrid.indices.map { row -> inputGrid[row][col] }.joinToString("") },
             (inputGrid.indices).map { col -> inputGrid.indices.reversed().map { row -> inputGrid[row][col] }.joinToString("") },

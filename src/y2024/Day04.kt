@@ -1,26 +1,88 @@
 package y2024
 
+import util.Cardinal
+import util.getRange
 import util.readInput
 import util.timingStatistics
+import util.transpose
 
 object Day04 {
-    private fun parse(input: List<String>): Any {
-        TODO()
+
+    /**
+     * get diagonal going in northeast direction
+     */
+    private fun getDiagonal(
+        n: Int,
+        grid: List<String>
+    ): String {
+        val start = if (n < grid.size) {
+            n to 0
+        } else {
+            (grid.size - 1) to (n - grid.size + 1)
+        }
+        var current = start
+        return buildString {
+            do {
+                append(grid[current.first][current.second])
+                current = Cardinal.NORTH.of(Cardinal.EAST.of(current))
+            } while (current.first >= 0 && current.second < grid.size)
+        }
     }
 
-    fun part1(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+    private fun allDirections(input: List<String>): List<List<String>> {
+        val diagonalsNE = (0 until (2 * input.size) - 1).map { getDiagonal(it, input) }
+        val rotated = (input.indices.reversed()).map { col -> input.indices.map { row -> input[row][col] }.joinToString("") }
+        val diagonalsSE = (0 until (2 * input.size) - 1).map { getDiagonal(it, rotated) }
+
+        val variants = listOf(
+            input,
+            diagonalsNE,
+            // verticals
+            input.map { it.toList() }.transpose().map { it.joinToString(separator = "") },
+            diagonalsSE,
+        )
+        return variants
     }
 
-    fun part2(input: List<String>): Long {
-        val parsed = parse(input)
-        return 0L
+    fun part1(grid: List<String>): Int {
+        val variants = allDirections(grid)
+        return variants.flatten().sumOf { countWords(it, "XMAS") }
+    }
+
+    private fun countWords(
+        line: String,
+        toFind: String
+    ): Int {
+        val candidates = line.windowed(toFind.length, step = 1)
+        return candidates.count { it == toFind } + candidates.count { it == toFind.reversed() }
+    }
+
+    fun part2(input: List<String>): Int {
+        val grid = input.map { it.toList() }
+        val stuff = (0..grid.size - 3).flatMap { r ->
+            (0..grid.size - 3).map { c ->
+                getRange(grid, r, c, r + 2, c + 2).joinToString(separator = "")
+            }
+        }
+        val re = Regex("(M.M.A.S.S)|(M.S.A.M.S)|(S.M.A.S.M)|(S.S.A.M.M)")
+        return stuff.count {
+            re.matches(it)
+        }
     }
 }
 
 fun main() {
     val testInput = """
+        MMMSXXMASM
+        MSAMXMSMSA
+        AMXSXMAAMM
+        MSAMASMSMX
+        XMASAMXAMM
+        XXAMMXXAMA
+        SMSMSASXSS
+        SAXAMASAAA
+        MAMMMXMMMM
+        MXMXAXMASX
     """.trimIndent().split("\n")
     println("------Tests------")
     println(Day04.part1(testInput))
