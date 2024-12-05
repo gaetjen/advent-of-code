@@ -46,17 +46,7 @@ object Day05 {
         return incorrect.sumOf { pages ->
             val applicableRules = rules.filter { pages[it.first] != null && pages[it.second] != null }
             val pageNumberFirstCounts = applicableRules.map { it.first }.groupingBy { it }.eachCount()
-            val sorted = pages.keys.sortedByDescending { pageNumberFirstCounts[it] }
-            val foo = sorted.withIndex().associate { (idx, n) -> n to idx }
-            if (applicableRules.any { (first, second) ->
-                val pageFirst = foo[first]
-                val pageSecond = foo[second]
-                pageFirst == null || pageSecond == null || pageFirst > pageSecond
-
-            }) {
-                println("Not correctly sorted: $sorted")
-            }
-            sorted[pages.size / 2]
+            pages.keys.sortedByDescending { pageNumberFirstCounts[it] }[pages.size / 2]
         }
     }
 }
