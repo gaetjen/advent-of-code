@@ -27,11 +27,7 @@ object Day05 {
                 val pageSecond = pages[second]
                 pageFirst == null || pageSecond == null || pageFirst < pageSecond
             }
-        }.sumOf { middle(it) }
-    }
-
-    fun middle(list: Map<Int, Int>): Int {
-        return list.entries.sortedBy { it.value }.map { it.key }[list.size / 2]
+        }.sumOf { it.entries.toList()[it.size / 2].key }
     }
 
     fun part2(input: List<String>): Int {
