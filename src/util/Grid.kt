@@ -68,6 +68,10 @@ enum class Cardinal(val relativePos: Pos) {
         return pos + relativePos
     }
 
+    fun backwardsOf(pos: Pos): Pos  {
+        return pos + (relativePos * -1)
+    }
+
     fun turn(direction: Turn): Cardinal {
         return when (direction) {
             Turn.RIGHT -> Cardinal.entries[(this.ordinal + 1) % 4]
