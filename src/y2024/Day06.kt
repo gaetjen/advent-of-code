@@ -26,7 +26,7 @@ data class MapState(
         return if (newPosition in blockedTiles) {
             this.copy(
                 guard = Guard(
-                    newDirection.turn(Turn.RIGHT).of(guard.pos),
+                    guard.direction.backwardsOf(guard.pos),
                     newDirection.turn(Turn.RIGHT)
                 )
             )
@@ -51,12 +51,10 @@ object Day06 {
                     '#' -> {
                         row to col
                     }
-
                     '^' -> {
                         guard = Guard(row to col, Cardinal.NORTH)
                         null
                     }
-
                     else -> null
                 }
             }
@@ -69,34 +67,47 @@ object Day06 {
     }
 
     fun part1(input: List<String>): Int {
-        var mapState = parse(input)
-        val visited = mutableSetOf(mapState.guard.pos)
+        val mapState = parse(input)
+        val visited = visitAll(mapState)
+        return visited.distinctBy { it.pos }.size
+    }
+
+    fun part2(input: List<String>): Int {
+        val mapState = parse(input)
+        val original = mapState.copy()
+        val visited = visitAll(mapState)
+        val newObstructions =  visited.filter { candidate ->
+            addObstructionLeadsToLoop(original, candidate)
+        }
+        return newObstructions.distinctBy { it.pos }.size
+    }
+
+    private fun visitAll(mapState: MapState): MutableSet<Guard> {
+        var walkingMapState = mapState
+        val visited = mutableSetOf<Guard>()
         while (true) {
-            mapState = mapState.walkGuard()
-            if (!mapState.outsideMap(mapState.guard.pos)) {
-                visited.add(mapState.guard.pos)
+            walkingMapState = walkingMapState.walkGuard()
+            if (!walkingMapState.outsideMap(walkingMapState.guard.pos)) {
+                visited.add(walkingMapState.guard)
             } else {
                 break
             }
         }
-        return visited.size
+        return visited
     }
 
     private fun addObstructionLeadsToLoop(
         mapState: MapState,
-        candidate: Guard,
-        visited: Set<Guard>
+        candidate: Guard
     ): Boolean {
         var newMap = mapState.copy(
             blockedTiles = mapState.blockedTiles + setOf(candidate.pos),
-            //guard = Guard(candidate.direction.backwardsOf(candidate.pos), candidate.direction)
         )
-        //val newVisited = visited.toMutableSet()
         val newVisited = mutableSetOf<Guard>()
         while (true) {
             newMap = newMap.walkGuard()
             if (!newMap.outsideMap(newMap.guard.pos)) {
-                if (newMap.guard in newVisited) {// || (newMap.guard in visited && !firstStep)) {
+                if (newMap.guard in newVisited) {
                     return true
                 } else {
                     newVisited.add(newMap.guard)
@@ -105,27 +116,6 @@ object Day06 {
                 return false
             }
         }
-    }
-
-    fun part2(input: List<String>): Int {
-        var mapState = parse(input)
-        val original = mapState.copy()
-        val visited = mutableSetOf<Guard>()
-        while (true) {
-            mapState = mapState.walkGuard()
-            if (!mapState.outsideMap(mapState.guard.pos)) {
-                visited.add(mapState.guard)
-            } else {
-                break
-            }
-        }
-        val newObstructions =  visited.filter { candidate ->
-            addObstructionLeadsToLoop(original, candidate, visited)
-        }
-        if (original.guard in newObstructions) {
-            println("original included")
-        }
-        return newObstructions.distinctBy { it.pos }.size
     }
 }
 
