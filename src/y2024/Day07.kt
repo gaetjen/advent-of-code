@@ -11,6 +11,7 @@ data class Equation(
     fun isSolvedBy(operators: List<(Long, Long) -> Long>): Boolean {
         val start = operands.first()
         return operands.drop(1).zip(operators).fold(initial = start) { acc, (operand, operator) ->
+            if (acc > result) return false
             operator(acc, operand)
         } == result
     }

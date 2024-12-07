@@ -55,9 +55,9 @@ fun <T> generateCombinations(list: List<T>, n: Int) : Sequence<List<T>> = sequen
             yield(listOf(it))
         }
     } else {
-        generateCombinations(list, n - 1).forEach { tail ->
+        generateCombinations(list, n - 1).forEach { head ->
             list.forEach {
-                yield(listOf(it) + tail)
+                yield(head + listOf(it))
             }
         }
     }
