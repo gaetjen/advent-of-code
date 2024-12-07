@@ -1,7 +1,5 @@
 package util
 
-import y2024.Day07.combinations
-
 /**
  * Splits a list into sublists where the predicate is true, similar to String.split.
  * @param matchInPost if true, the matching element is included in the sublist that follows it
@@ -57,7 +55,7 @@ fun <T> generateCombinations(list: List<T>, n: Int) : Sequence<List<T>> = sequen
             yield(listOf(it))
         }
     } else {
-        combinations(list, n - 1).forEach { tail ->
+        generateCombinations(list, n - 1).forEach { tail ->
             list.forEach {
                 yield(listOf(it) + tail)
             }
