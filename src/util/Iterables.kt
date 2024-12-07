@@ -1,5 +1,7 @@
 package util
 
+import y2024.Day07.combinations
+
 /**
  * Splits a list into sublists where the predicate is true, similar to String.split.
  * @param matchInPost if true, the matching element is included in the sublist that follows it
@@ -41,6 +43,23 @@ fun <T> generateTakes(list: List<T>, n: Int) : Sequence<List<T>> = sequence  {
             val tails = generateTakes(list.subList(index + 1, list.size), n - 1)
             tails.forEach {
                 yield(listOf(el) + it)
+            }
+        }
+    }
+}
+
+/**
+ * generate all the ways to select [n] elements from [list] (respecting order)
+ */
+fun <T> generateCombinations(list: List<T>, n: Int) : Sequence<List<T>> = sequence {
+    if (n == 1) {
+        list.forEach {
+            yield(listOf(it))
+        }
+    } else {
+        combinations(list, n - 1).forEach { tail ->
+            list.forEach {
+                yield(listOf(it) + tail)
             }
         }
     }

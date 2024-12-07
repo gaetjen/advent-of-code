@@ -1,5 +1,6 @@
 package y2024
 
+import util.generateCombinations
 import util.readInput
 import util.timingStatistics
 
@@ -40,31 +41,14 @@ object Day07 {
         { a, b -> "$a$b".toLong() }
     )
 
-    fun isSolvable(equation: Equation, operators: List<(Long, Long) -> Long> = operatorsPart1): Boolean {
+    private fun isSolvable(equation: Equation, operators: List<(Long, Long) -> Long> = operatorsPart1): Boolean {
         val numberOperators = equation.operands.size - 1
-        val operandCombinations = combinations(operators, numberOperators)
-        operandCombinations.forEach {
+        generateCombinations(operators, numberOperators).forEach {
             if (equation.isSolvedBy(it)) {
                 return true
             }
         }
         return false
-    }
-
-    /**
-     * generate all the ways to select n elements from list (respecting order)
-     */
-    fun <T> combinations(
-        list: List<T>,
-        n: Int
-    ): List<List<T>> {
-        if (n == 1) {
-            return list.map { listOf(it) }
-        }
-        val tails = combinations(list, n - 1)
-        return tails.flatMap { tail ->
-            list.map { listOf(it) + tail }
-        }
     }
 
     fun part2(input: List<String>): Long {
