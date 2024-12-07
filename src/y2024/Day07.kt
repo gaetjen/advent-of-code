@@ -1,6 +1,5 @@
 package y2024
 
-import util.generateCombinations
 import util.readInput
 import util.timingStatistics
 
@@ -8,12 +7,25 @@ data class Equation(
     val result: Long,
     val operands: List<Long>
 ) {
-    fun isSolvedBy(operators: List<(Long, Long) -> Long>): Boolean {
-        val start = operands.first()
-        return operands.drop(1).zip(operators).fold(initial = start) { acc, (operand, operator) ->
-            if (acc > result) return false
-            operator(acc, operand)
-        } == result
+    fun canBeSolvedWith(operators: List<(Long, Long) -> Long>): Boolean {
+        return canBeSolvedWith(operands.first(), operands.drop(1), operators)
+    }
+
+    private fun canBeSolvedWith(left: Long, tail: List<Long>, operators: List<(Long, Long) -> Long>) : Boolean {
+        if (left > result) return false
+        if (tail.size == 1) {
+            operators.forEach { op ->
+                if (op(left, tail.first()) == result) return true
+            }
+            return false
+        }
+        operators.forEach { op ->
+            val nextLeft = op(left, tail.first())
+            if (canBeSolvedWith(nextLeft, tail.drop(1), operators)) {
+                return true
+            }
+        }
+        return false
     }
 }
 
@@ -30,7 +42,7 @@ object Day07 {
 
     fun part1(input: List<String>): Long {
         val equations = parse(input)
-        return equations.filter { isSolvable(it) }.sumOf { it.result }
+        return equations.filter { it.canBeSolvedWith(operatorsPart1) }.sumOf { it.result }
     }
 
     private val operatorsPart1 = listOf<(Long, Long) -> Long>(
@@ -42,19 +54,9 @@ object Day07 {
         { a, b -> "$a$b".toLong() }
     )
 
-    private fun isSolvable(equation: Equation, operators: List<(Long, Long) -> Long> = operatorsPart1): Boolean {
-        val numberOperators = equation.operands.size - 1
-        generateCombinations(operators, numberOperators).forEach {
-            if (equation.isSolvedBy(it)) {
-                return true
-            }
-        }
-        return false
-    }
-
     fun part2(input: List<String>): Long {
         val equations = parse(input)
-        return equations.filter { isSolvable(it, operatorsPart2) }.sumOf { it.result }
+        return equations.filter { it.canBeSolvedWith(operatorsPart2) }.sumOf { it.result }
     }
 }
 
