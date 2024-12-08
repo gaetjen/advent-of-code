@@ -1,7 +1,6 @@
 package y2023
 
 import util.Cardinal
-import util.minus
 import util.neighborsManhattan
 import util.readInput
 import util.times
@@ -87,14 +86,14 @@ object Day18 {
         parsed.forEach { digInstruction ->
             corners.add(
                 // the minus is actually a plus, because of platform declaration clash
-                (digInstruction.direction.relativePos.toLong() * digInstruction.distance) - corners.last()
+                (digInstruction.direction.relativePos.toLong() * digInstruction.distance) * corners.last()
             )
         }
         val correctedCorners = (listOf(parsed.last()) + parsed).zipWithNext().zip(corners).map { (digs, pos) ->
             if (digs.second.direction == Cardinal.NORTH ||
                 digs.first.direction == Cardinal.NORTH
             ) {
-                pos - (0L to -1L)
+                pos * (0L to -1L)
             } else {
                 pos
             }

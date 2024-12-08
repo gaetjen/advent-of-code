@@ -2,9 +2,9 @@ package y2024
 
 import util.Pos
 import util.generateTakes
+import util.minus
 import util.plus
 import util.readInput
-import util.times
 import util.timingStatistics
 
 data class AntennaMap(
@@ -50,12 +50,12 @@ object Day08 {
 
     private fun antiNodes(antennas: Set<Pos>): Set<Pos> {
         return generateTakes(antennas.toList(), 2).flatMap { (a1, a2) ->
-            val diff = a1 + (a2 * -1)
+            val diff = a1 - a2
             setOf(
                 a1 + diff,
-                a1 + (diff * -1),
+                a1 - diff,
                 a2 + diff,
-                a2 + (diff * -1)
+                a2 - diff
             ) - setOf(a1, a2)
         }.toSet()
     }
@@ -73,12 +73,12 @@ object Day08 {
         positions: Set<Pos>
     ): Set<Pos> {
         return generateTakes(positions.toList(), 2).flatMap { (a1, a2) ->
-            val diff = a1 + (a2 * -1)
+            val diff = a1 - a2
             val increasing = generateSequence(a1) { s ->
                 s + diff
             }.takeWhile { !map.outsideMap(it) }
             val decreasing = generateSequence(a1) { s ->
-                s + (diff * -1)
+                s - diff
             }.takeWhile { !map.outsideMap(it) }
             increasing + decreasing
         }.toSet()

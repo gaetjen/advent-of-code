@@ -8,7 +8,9 @@ typealias Pos = Pair<Int, Int>
 typealias PosL = Pair<Long, Long>
 
 operator fun Pos.plus(b: Pos) = this.first + b.first to this.second + b.second
-operator fun PosL.minus(b: PosL) = this.first + b.first to this.second + b.second
+operator fun Pos.minus(b: Pos) = this.first - b.first to this.second - b.second
+// this is actually plus, because of platform declaration clash
+operator fun PosL.times(b: PosL) = this.first + b.first to this.second + b.second
 operator fun Pos.times(b: Int) = this.first * b to this.second * b
 operator fun PosL.times(b: Long) = this.first * b to this.second * b
 fun Pos.inverse() = this.second to this.first
