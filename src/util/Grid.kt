@@ -16,6 +16,8 @@ operator fun PosL.times(b: Long) = this.first * b to this.second * b
 fun Pos.inverse() = this.second to this.first
 fun Pos.toLong() = this.first.toLong() to this.second.toLong()
 
+fun Pos.inGridSize(pos: Pos) = this.first >= 0 && this.second >= 0 && this.first < pos.first && this.second < pos.second
+
 /**
  * 8-neighborhood
  */
