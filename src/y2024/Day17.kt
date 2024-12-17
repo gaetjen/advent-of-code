@@ -176,70 +176,117 @@ object Day17 {
     fun part2(input: List<String>): Long {
         val (_, program) = parse(input)
         val programCode = input.last().substringAfter(" ").split(",").map { it.toInt() }
-        val fixedInputs = MutableList(programCode.size) { 0 }
-        //findBestInputs(fixedInputs, program, programCode, 3)
-        val doubleInputs = fixedInputs.chunked(2).map { it.toStartValue(3).toInt() }.toMutableList()
-        assert(doubleInputs.toStartValue(6) == fixedInputs.toStartValue(3))
-        println(doubleInputs)
-        findBestInputs(doubleInputs, program, programCode, 6)
-        println(doubleInputs)
-        return doubleInputs.toStartValue(6)
+        val fixedInputs = MutableList(programCode.size * 3) { 0 }
+        findBestInputs(fixedInputs, program, programCode, 9)
+        return fixedInputs.toStartValue(1)
+    }
+
+    /*
+        val fixedInputs = MutableList(programCode.size * 3) { 1 }
+        val mappings = getMappings(fixedInputs, program, 1)
+        //println(mappings)
+        val totalLength = mappings.flatten().max()
+        mappings.forEach { mp ->
+            val ln = ".".repeat(totalLength + 1).toMutableList()
+            mp.forEach { ln[it] = '#' }
+            println(ln.joinToString(""))
+        }
+        //println(getMappings(MutableList(programCode.size) { 7 }, program))
+        return -1L
+     */
+
+    private fun getMappings(
+        fixedInputs: MutableList<Int>,
+        program: List<ThreeBitInstruction>,
+        bitsPerInput: Int
+    ): List<List<Int>> {
+        val maxValue = 2.0.pow(bitsPerInput).toInt() - 1
+        return fixedInputs.indices.map { idx ->
+            val outputs = (0..maxValue).map { newTestValue ->
+                val inputs = fixedInputs.toMutableList()
+                inputs[idx] = newTestValue
+                val machine = ThreeBitMachine(
+                    program,
+                    ThreeBitMachineState(
+                        mutableMapOf(
+                            'A' to inputs.toStartValue(bitsPerInput),
+                            'B' to 0,
+                            'C' to 0
+                        )
+                    )
+                )
+                machine.run().output.asBits(withSep = false)
+            }
+            outputs.first().indices.filter { outIdx ->
+                outputs.any { it[outIdx] != outputs.first()[outIdx] }
+            }
+        }
     }
 
     private fun findBestInputs(
         fixedInputs: MutableList<Int>,
         program: List<ThreeBitInstruction>,
         programCode: List<Int>,
-        bitsPerInput: Int
+        windowSize: Int
     ) {
-        val maxValue = 2.0.pow(bitsPerInput).toInt() - 1
+        val maxValue = 2.0.pow(windowSize).toInt() - 1
         var matching = 0
         while (true) {
-            fixedInputs.indices.forEach { idx ->
+            fixedInputs.indices.reversed().windowed(windowSize, step = 1).forEach { window ->
                 val bestValue = (0..maxValue).maxBy { newTestValue ->
                     val inputs = fixedInputs.toMutableList()
-                    inputs[idx] = newTestValue
+                    val newValueBits = newTestValue.toString(2).padStart(windowSize, '0')
+                    window.forEachIndexed { idx, windowIdx ->
+                        inputs[windowIdx] = if (newValueBits[idx] == '1') 1 else 0
+                    }
                     val machine = ThreeBitMachine(
                         program,
                         ThreeBitMachineState(
                             mutableMapOf(
-                                'A' to inputs.toStartValue(bitsPerInput),
+                                'A' to inputs.toStartValue(1),
                                 'B' to 0,
                                 'C' to 0
                             )
                         )
                     )
                     val endState = machine.run()
-                    endState.output.asBits().zip(programCode.asBits()).count { it.first == it.second }
+
+                    endState.output.asBits(withSep = false).reversed().zip(programCode.asBits(withSep = false).reversed()).count { it.first == it.second }
+
                 }
-                fixedInputs[idx] = bestValue
+                val bestValueBits = bestValue.toString(2).padStart(windowSize, '0')
+
+                window.forEachIndexed { idx, windowIdx ->
+                    fixedInputs[windowIdx] = if (bestValueBits[idx] == '1') 1 else 0
+                }
             }
 
             val machine = ThreeBitMachine(
                 program,
                 ThreeBitMachineState(
                     mutableMapOf(
-                        'A' to fixedInputs.toStartValue(bitsPerInput),
+                        'A' to fixedInputs.toStartValue(1),
                         'B' to 0,
                         'C' to 0
                     )
                 )
             )
             val end = machine.run()
-            val newMatch = end.output.asBits().zip(programCode.asBits()).count { it.first == it.second }
+            val newMatch = end.output.asBits(withSep = false).zip(programCode.asBits(withSep = false)).count { it.first == it.second }
             if (newMatch == matching) {
-                println("Matching: $matching/${programCode.asBits().length}")
-                println(end.output.asBits())
-                println(programCode.asBits())
+                //println("Matching: $matching/${programCode.asBits(withSep = false).length}")
+                //println(end.output.asBits())
+                //println(programCode.asBits())
                 break
             } else {
+                //println("Matching: $matching/${programCode.asBits(withSep = false).length}")
                 matching = newMatch
             }
         }
     }
 
-    private fun List<Int>.asBits(): String {
-        return this.joinToString("|") {
+    private fun List<Int>.asBits(withSep: Boolean = true): String {
+        return this.joinToString(if (withSep) "|" else "") {
             it.toString(2).padStart(3, '0')
         }
     }
@@ -276,5 +323,5 @@ fun main() {
     println("Part 1 result: ${Day17.part1(input)}")
     println("Part 2 result: ${Day17.part2(input)}")
     timingStatistics { Day17.part1(input) }
-    //timingStatistics { Day17.part2(input) }
+    timingStatistics { Day17.part2(input) }
 }
