@@ -6,6 +6,7 @@ import util.product
 import util.readInput
 import util.split
 import util.timingStatistics
+import kotlin.math.pow
 
 data class ThreeBitMachine(
     override val instructions: List<ThreeBitInstruction>,
@@ -120,7 +121,10 @@ sealed class ThreeBitInstruction : AbstractInstruction<ThreeBitMachineState>() {
     }
 
     companion object {
-        fun fromCode(code: Int, operand: Int): ThreeBitInstruction {
+        fun fromCode(
+            code: Int,
+            operand: Int
+        ): ThreeBitInstruction {
             return when (code) {
                 0 -> Adv(operand)
                 1 -> Bxl(operand)
@@ -172,32 +176,64 @@ object Day17 {
     fun part2(input: List<String>): Long {
         val (_, program) = parse(input)
         val programCode = input.last().substringAfter(" ").split(",").map { it.toInt() }
-        //var aValue = List(16 * 3 - 1) {2L}.product() + 1
-        var aValue = 1L
+        val fixedInputs = MutableList(programCode.size) { 0 }
+        //findBestInputs(fixedInputs, program, programCode, 3)
+        val doubleInputs = fixedInputs.chunked(2).map { it.toStartValue(3).toInt() }.toMutableList()
+        assert(doubleInputs.toStartValue(6) == fixedInputs.toStartValue(3))
+        println(doubleInputs)
+        findBestInputs(doubleInputs, program, programCode, 6)
+        println(doubleInputs)
+        return doubleInputs.toStartValue(6)
+    }
+
+    private fun findBestInputs(
+        fixedInputs: MutableList<Int>,
+        program: List<ThreeBitInstruction>,
+        programCode: List<Int>,
+        bitsPerInput: Int
+    ) {
+        val maxValue = 2.0.pow(bitsPerInput).toInt() - 1
+        var matching = 0
         while (true) {
-            val machine = ThreeBitMachine(program,
+            fixedInputs.indices.forEach { idx ->
+                val bestValue = (0..maxValue).maxBy { newTestValue ->
+                    val inputs = fixedInputs.toMutableList()
+                    inputs[idx] = newTestValue
+                    val machine = ThreeBitMachine(
+                        program,
+                        ThreeBitMachineState(
+                            mutableMapOf(
+                                'A' to inputs.toStartValue(bitsPerInput),
+                                'B' to 0,
+                                'C' to 0
+                            )
+                        )
+                    )
+                    val endState = machine.run()
+                    endState.output.asBits().zip(programCode.asBits()).count { it.first == it.second }
+                }
+                fixedInputs[idx] = bestValue
+            }
+
+            val machine = ThreeBitMachine(
+                program,
                 ThreeBitMachineState(
                     mutableMapOf(
-                        'A' to aValue,
+                        'A' to fixedInputs.toStartValue(bitsPerInput),
                         'B' to 0,
                         'C' to 0
                     )
                 )
             )
             val end = machine.run()
-            if (end.output == programCode) {
-                return aValue
-            }
-            println(aValue.toString(2).chunked(3).joinToString("|") + "   : $aValue")
-            println(end.output.asBits())
-            aValue *= 2
-            //if (aValue % 10_000 == 0) {
-            //println("aValue: $aValue")
-                //println(programCode)
-            //}
-            if (aValue > 1_000_000_000_000_000) {
+            val newMatch = end.output.asBits().zip(programCode.asBits()).count { it.first == it.second }
+            if (newMatch == matching) {
+                println("Matching: $matching/${programCode.asBits().length}")
+                println(end.output.asBits())
                 println(programCode.asBits())
-                return -1
+                break
+            } else {
+                matching = newMatch
             }
         }
     }
@@ -206,6 +242,12 @@ object Day17 {
         return this.joinToString("|") {
             it.toString(2).padStart(3, '0')
         }
+    }
+
+    private fun List<Int>.toStartValue(bitsPerValue: Int): Long {
+        return this.mapIndexed { index, n ->
+            n * 2.0.pow(index * bitsPerValue).toLong()
+        }.sum()
     }
 }
 
@@ -227,7 +269,7 @@ fun main() {
     """.trimIndent().split("\n")
     println("------Tests------")
     println(Day17.part1(testInput))
-    //println(Day17.part2(testPart2))
+    println(Day17.part2(testPart2))
 
     println("------Real------")
     val input = readInput(2024, 17)
