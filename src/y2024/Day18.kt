@@ -46,7 +46,7 @@ object Day18 {
         val parsed = parse(input)
         var curIdx = 0
         try {
-            parsed.indices.forEach { i ->
+            parsed.indices.drop(1024).forEach { i ->
                 curIdx = i
                 shortestPath(parsed.take(i + 1).toSet(), 70)
             }
